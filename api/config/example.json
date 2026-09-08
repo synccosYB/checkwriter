@@ -1,0 +1,82 @@
+{
+  "frontend_url": "http://localhost:3000",
+  "port": 7777,
+  "allowSuperAdminDisableMfa": false,
+  "send_grid": {
+    "api_key": ""
+  },
+  "mongo_db": {
+    "live_uri": "",
+    "uri": "",
+    "database": ""
+  },
+  "jwt_secret_key": "",
+  "connect_me_jwt_secret_key": "",
+  "google": {
+    "client_id": "",
+    "project_id": "",
+    "auth_uri": "",
+    "token_uri": "",
+    "auth_provider_x509_cert_url": "",
+    "client_secret": ""
+  },
+  "stripe_subscription": {
+    "stripe_monthly_subscription_price_id": "",
+    "stripe_subscription_trial_period_days": "",
+    "stripe_secret_key": "",
+    "stripe_live_secret_key": "",
+    "stripe_subscription_webhook_endpoint_secret": "",
+    "subscription_domain_url": "",
+    "checkwriter_product_id": "",
+    "payment_method_collection": ""
+  },
+  "postgrid": {
+    "api_key": "",
+    "base_url": "",
+    "webhook_url": ""
+  },
+  "message_collab": {
+    "sms_api_url": "",
+    "phone_number": "",
+    "account_id": "",
+    "auth_token": ""
+  },
+  "twilio": {
+    "auth_token": "",
+    "account_sid": "",
+    "phone_number": ""
+  },
+  "stripe_payment_links": {
+    "client_id": "",
+    "stripe_subscription_webhook_endpoint_secret": "",
+    "stripe_secret_key": ""
+  },
+  "trial": {
+    "trial_max_checks": 15
+  },
+  "s3": {
+    "endpoint_url": "",
+    "access_key_id": "",
+    "secret_access_key": "",
+    "bucket_name": ""
+  },
+  "qbo": {
+    "client_id": "",
+    "client_secret": "",
+    "redirect_uri": "",
+    "environment": "",
+    "webhook_verifier_token": ""
+  },
+  "constants": {
+    "systemName": "Synccos Check Writer"
+  },
+  "admin": {
+    "email": ["test@email.com"]
+  },
+  "mailchimp": {
+    "api_key": "",
+    "server_prefix": "",
+    "list_id": "",
+    "tag": ""
+  }
+}

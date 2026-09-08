@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Synccos Check Writer</string>
+    <string name="title_activity_main">Synccos Check Writer</string>
+    <string name="package_name">com.synccos.checkwriter</string>
+    <string name="custom_url_scheme">com.synccos.checkwriter</string>
+</resources>

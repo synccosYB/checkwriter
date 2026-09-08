@@ -1,0 +1,844 @@
+Here is a cleaned-up developer-ready version of **#21 - Admin Frontend Dashboard — Full Control UI**.
+
+---
+
+#21 - Admin Frontend Dashboard — Full Control UI
+
+## Objective
+
+Build the frontend admin dashboard pages that consume the new admin backend APIs and give superadmins a complete control panel for managing and reviewing the full system.
+
+This task expands the current admin area from basic user/mail management into a full platform administration UI.
+
+---
+
+## What & Why
+
+The current admin dashboard is too limited for real system operations. Superadmins need a frontend interface to manage users, review records across all accounts, inspect audits, update platform settings, review integrations, and investigate imports and attachments.
+
+The backend task adds the APIs. This frontend task must expose that functionality in a clean, structured, admin-only dashboard using the existing MUI-based patterns already used in the app.
+
+The result should feel like one consistent admin control center, not a collection of disconnected screens.
+
+---
+
+## Done looks like
+
+### Navigation
+
+A new expanded **Admin** section appears in the sidebar with links to all admin pages.
+
+### User management
+
+The existing User Management page is enhanced to support:
+
+* activate / deactivate user accounts
+* manual custom subscription price overrides
+* improved filtering and search
+
+### Global entity management
+
+Superadmins can use dedicated pages to view and manage:
+
+* all checks across all users
+* all bank accounts across all users
+* all payees across all users
+* all organizations
+* all transactions across all users (read-only)
+
+### Observability
+
+Superadmins can view:
+
+* audit logs with filtering
+* integration statuses across QuickBooks / Stripe / Plaid
+* all attachments
+* all check import history
+
+### Configuration
+
+Superadmins can manage:
+
+* platform settings
+* mailing prices through a dedicated settings section
+
+### Security
+
+All pages are protected by the existing `AdminRoute` guard.
+
+### Design consistency
+
+All screens use the same MUI-based UI patterns, spacing, table behavior, dialogs, cards, and filter interactions already present in the app.
+
+---
+
+## Out of scope
+
+* Backend API work
+* Mobile-specific layouts
+* CSV / Excel / export functionality
+* Real-time live refresh or websockets
+* Redesigning the entire admin dashboard visual language
+* Replacing existing MUI-based patterns with another component approach
+
+---
+
+## Core implementation principles
+
+### 1) Follow existing admin UI patterns
+
+Do not invent a second design system for these pages. Reuse existing admin table layouts, dialogs, filter bars, page headers, and action menus wherever possible.
+
+### 2) Admin pages should feel cohesive
+
+All pages should share common patterns for:
+
+* page titles
+* table toolbars
+* search/filter sections
+* pagination
+* row actions
+* dialogs / edit modals
+* loading / empty / error states
+
+### 3) Prefer reusable components over one-off page code
+
+Where multiple admin pages use the same behavior, create reusable building blocks.
+
+Examples:
+
+* reusable admin data table wrapper
+* reusable filter bar
+* reusable confirmation dialog
+* reusable status badge
+* reusable edit modal patterns
+* reusable detail drawer or expandable row patterns where needed
+
+### 4) Respect backend permissions and route protection
+
+Frontend route guards are required, but backend authorization remains the source of truth.
+
+---
+
+## Information architecture
+
+## Sidebar navigation
+
+Add a new **Admin** navigation group or expand the current one to include:
+
+* Admin Dashboard
+* Users
+* Checks
+* Banks
+* Payees
+* Transactions
+* Organizations
+* Audit Logs
+* Platform Settings
+* Integrations
+* Attachments & Imports
+
+If the current app already has some of these pages under admin, keep naming and placement consistent rather than duplicating entries.
+
+---
+
+## Page-by-page scope
+
+## 1. Enhanced User Management page
+
+### Goal
+
+Extend the current User Management page rather than replacing it.
+
+### Additions
+
+* activate / deactivate action per user
+* custom subscription price action
+* better filtering and search controls
+* clearer status display for active vs inactive users
+* optional display of price override if present
+
+### UI behavior
+
+Each user row should support actions such as:
+
+* edit existing user behavior if already present
+* activate / deactivate
+* set custom price
+* clear custom price if applicable
+
+### Suggested UI elements
+
+* status chip for `Active` / `Inactive`
+* action menu or inline action buttons
+* modal for custom subscription price editing
+* filter controls for:
+
+  * active status
+  * role if relevant
+  * search term
+  * maybe subscription override presence if useful
+
+### Acceptance
+
+* Admin can activate and deactivate a user from the page
+* Admin can open a modal to set or clear a custom subscription price
+* Filters work cleanly and do not conflict with existing functionality
+
+---
+
+## 2. Checks Management page
+
+### Goal
+
+Create a dedicated page for global checks administration.
+
+### Main UI
+
+A paginated data table showing checks across all users.
+
+### Required table capabilities
+
+* search bar
+* filter by status
+* filter by user
+* date range filter
+* amount range filter
+* pagination
+* sortable columns where supported
+
+### Suggested columns
+
+* check number
+* payee
+* amount
+* status
+* date
+* owner user
+* organization
+* bank account
+* mailing / processing state if relevant
+* actions
+
+### Row actions
+
+* view details
+* edit
+* void or delete depending on backend behavior
+
+### Editing UX
+
+Use an edit modal for inline updates rather than a separate page unless the app already has a pattern for detail screens.
+
+### Acceptance
+
+* Admin can browse all checks globally
+* Filters and search work
+* Admin can edit a check via modal
+* Admin can void/delete with confirmation
+
+---
+
+## 3. Banks Management page
+
+### Goal
+
+Create a global admin page for bank account management.
+
+### Main UI
+
+Paginated/searchable data table.
+
+### Suggested columns
+
+* bank nickname / label
+* masked account info
+* routing or bank identifier if safely displayable
+* owner user
+* organization
+* created date
+* actions
+
+### Row actions
+
+* edit
+* delete
+
+### Safety
+
+Do not expose raw sensitive values beyond what current app security rules allow.
+
+### Acceptance
+
+* Admin can search and browse all bank accounts
+* Owner context is shown
+* Edit/delete actions are available with confirmation where needed
+
+---
+
+## 4. Payees Management page
+
+### Goal
+
+Create a global admin page for payees.
+
+### Main UI
+
+Paginated/searchable data table.
+
+### Suggested columns
+
+* payee name
+* owner user
+* organization
+* created date
+* last updated
+* actions
+
+### Row actions
+
+* edit
+* delete
+
+### Acceptance
+
+* Admin can browse all payees across the system
+* Owner context is clearly visible
+* Edit/delete actions work consistently with other admin pages
+
+---
+
+## 5. Transactions page
+
+### Goal
+
+Provide system-wide read-only visibility into transactions.
+
+### Main UI
+
+Read-only data table.
+
+### Required filters
+
+* date range
+* user
+* amount range
+* transaction type/status if supported by backend
+
+### Suggested columns
+
+* transaction date
+* type
+* amount
+* status
+* owner user
+* organization
+* related entity if applicable
+* reference / external id if useful
+
+### Important
+
+No edit/delete actions in this task.
+
+### Acceptance
+
+* Admin can browse and inspect transactions globally
+* Page is clearly read-only
+* Filters and pagination work properly
+
+---
+
+## 6. Organizations page
+
+### Goal
+
+Allow admins to manage all organizations from one place.
+
+### Main UI
+
+Paginated data table.
+
+### Suggested columns
+
+* organization name
+* member count
+* owner / primary contact if available
+* created date
+* status if applicable
+* actions
+
+### Detail display
+
+Each row should support either:
+
+* expandable associated users display
+* or a detail modal / drawer
+* or an inline member count with quick view
+
+### Row actions
+
+* edit
+* delete
+
+### Acceptance
+
+* Admin can view organizations and associated users/member counts
+* Admin can edit and delete organizations
+* Delete action is confirmed before execution
+
+---
+
+## 7. Audit Logs page
+
+### Goal
+
+Provide a usable admin log viewer for system auditing and investigation.
+
+### Main UI
+
+Searchable/filterable table or log list.
+
+### Required filters
+
+* entity type
+* action type
+* user
+* date range
+
+### Suggested columns
+
+* timestamp
+* actor user
+* action
+* entity type
+* entity id
+* target label/name if available
+
+### Expanded details
+
+Rows should be expandable to show change details such as:
+
+* old values
+* new values
+* metadata / diff payload
+
+Do not over-design this. A clean expandable JSON/diff view is enough.
+
+### Acceptance
+
+* Admin can filter logs meaningfully
+* Admin can expand a row to inspect old/new values
+* Large logs remain navigable with pagination
+
+---
+
+## 8. Platform Settings page
+
+### Goal
+
+Create a UI for system-wide key-value configuration.
+
+### Main UI
+
+Editable key-value settings table or grouped settings view.
+
+### Required behavior
+
+* list all settings
+* edit existing setting
+* add/upsert setting if supported
+* clear distinction between generic settings and mailing prices
+
+### Mailing prices section
+
+Include a dedicated mailing prices section so admins do not need to edit raw keys blindly.
+
+Possible layout:
+
+* General settings table
+* Mailing prices card / section with labeled fields
+
+### Validation
+
+The page should provide basic client-side validation before save where practical.
+
+### Acceptance
+
+* Admin can view all platform settings
+* Admin can edit and save settings
+* Mailing prices are easy to manage through a clearer UI section
+
+---
+
+## 9. Integrations Overview page
+
+### Goal
+
+Give admins a read-only overview of platform integration health across users.
+
+### Main UI
+
+Could be implemented as:
+
+* a grouped dashboard with cards and tables
+* or tabbed sections for QuickBooks / Stripe / Plaid
+* or one page with three stacked sections
+
+### Data to show
+
+For QuickBooks:
+
+* connected / disconnected
+* user
+* organization
+* last sync if available
+
+For Stripe:
+
+* customer/subscription status
+* user
+* organization
+* plan / status reference if available
+
+For Plaid:
+
+* connected / disconnected
+* institution if available
+* user
+* organization
+* linked account count if available
+
+### Important
+
+Read-only only.
+
+### Acceptance
+
+* Admin can quickly inspect integration statuses across the platform
+* QuickBooks, Stripe, and Plaid are clearly separated and understandable
+
+---
+
+## 10. Attachments & Imports page
+
+### Goal
+
+Give admins global visibility into files and check import sessions.
+
+### Main UI
+
+Tabbed page with:
+
+* Attachments tab
+* Import History tab
+
+### Attachments tab
+
+Suggested columns:
+
+* file name
+* owner user
+* organization
+* entity type
+* file type / mime type
+* created date
+
+### Imports tab
+
+Suggested columns:
+
+* import session id or label
+* owner user
+* organization
+* row count
+* success count
+* failure count
+* validation status
+* created date
+
+### Acceptance
+
+* Admin can browse all attachments
+* Admin can browse import history
+* Tab structure keeps the page organized
+
+---
+
+## Routing requirements
+
+## Dashboard route registration
+
+Register all new admin pages in:
+
+* `client/src/routes/DashboardRoutes.jsx`
+* `client/src/routes/AdminRoutes.jsx`
+
+All pages must be wrapped with `AdminRoute` protection.
+
+### Acceptance
+
+* Direct navigation to any admin page requires admin access
+* Non-admin users cannot access these routes
+* Sidebar links resolve correctly
+
+---
+
+## API client work
+
+## Admin API client
+
+Create API client methods for all new admin endpoints in:
+
+* `client/src/API/admin/adminClient.js`
+
+Follow the same patterns already used by the current admin client.
+
+### Requirements
+
+* one clear method per endpoint/action
+* query param support for filters/pagination
+* consistent error handling
+* no page should be manually constructing fetch calls if the admin client pattern already exists
+
+### Suggested groupings
+
+* users
+* checks
+* banks
+* payees
+* transactions
+* organizations
+* audit logs
+* platform settings
+* integrations
+* attachments
+* imports
+
+---
+
+## Shared UI patterns to reuse
+
+Where possible, standardize the following:
+
+### Page shell
+
+* title
+* subtitle if needed
+* toolbar area for search/filters/actions
+
+### Data table behaviors
+
+* loading state
+* empty state
+* error state
+* pagination footer
+* sorting support
+* action column
+
+### Dialogs / modals
+
+* edit modal
+* confirmation dialog
+* custom price modal
+* delete / void confirm modal
+
+### Status indicators
+
+* active/inactive chips
+* integration status chips
+* audit action badges
+* transaction/check status chips
+
+---
+
+## State management / page behavior guidance
+
+Each page should clearly manage:
+
+* current filters
+* pagination state
+* sorting state
+* loading state
+* mutation state
+* refresh after mutation
+
+Avoid page-specific ad hoc handling if a reusable hook or table abstraction can support multiple admin screens.
+
+If the project already uses a data-fetching pattern, follow it consistently.
+
+---
+
+## UX expectations
+
+### Confirmation flows
+
+Use confirmation dialogs for:
+
+* deletes
+* void actions
+* deactivate actions if that is the pattern used elsewhere
+
+### Inline clarity
+
+Make clear when pages are:
+
+* editable
+* read-only
+* destructive
+
+### Empty states
+
+Every page should have a proper empty state rather than just a blank table.
+
+### Errors
+
+Show user-friendly admin errors, especially for:
+
+* failed saves
+* delete failures
+* invalid setting values
+* permission errors
+
+---
+
+## Suggested page file structure
+
+This does not need to be exact, but the implementation should stay organized.
+
+```txt
+client/src/pages/Admin/
+  Dashboard/
+  ChecksManagement/
+  BanksManagement/
+  PayeesManagement/
+  TransactionsManagement/
+  OrganizationsManagement/
+  AuditLogs/
+  PlatformSettings/
+  IntegrationsOverview/
+  AttachmentsImports/
+```
+
+If the codebase already keeps admin pages elsewhere, stay consistent with the existing structure rather than forcing a new folder pattern.
+
+---
+
+## Acceptance criteria
+
+## Navigation
+
+* Sidebar includes all required admin links
+* Links are grouped clearly under Admin
+
+## Access control
+
+* All admin pages are protected by `AdminRoute`
+* Non-admin users cannot reach them
+
+## Users
+
+* User Management supports activate/deactivate
+* User Management supports custom subscription price override via modal
+* Filtering is improved and usable
+
+## Checks
+
+* Checks page supports search, filters, pagination, sorting, edit, and void/delete
+
+## Banks
+
+* Banks page shows owner info and supports edit/delete
+
+## Payees
+
+* Payees page shows owner info and supports edit/delete
+
+## Transactions
+
+* Transactions page is read-only and filterable
+
+## Organizations
+
+* Organizations page shows member counts / associated users and supports edit/delete
+
+## Audit logs
+
+* Audit Logs page supports search/filtering and expandable change details
+
+## Platform settings
+
+* Platform Settings page supports editing key-value settings
+* Mailing prices are presented in a dedicated section
+
+## Integrations
+
+* Integrations page shows QuickBooks, Stripe, and Plaid statuses per user
+
+## Attachments / imports
+
+* Attachments & Imports page includes both attachment browsing and import history
+
+## Consistency
+
+* All pages use existing MUI design patterns
+* Tables, dialogs, and status indicators feel consistent across screens
+
+---
+
+## Relevant files
+
+* `client/src/routes/DashboardRoutes.jsx`
+* `client/src/routes/AdminRoutes.jsx`
+* `client/src/components/Layout/Sidebar.jsx`
+* `client/src/pages/Admin/Dashboard/index.tsx`
+* `client/src/pages/UserManagement/index.jsx`
+* `client/src/pages/UserManagement/components/modals/addUserModal/index.tsx`
+* `client/src/pages/UserManagement/components/modals/MonthlyPriceModal/index.jsx`
+* `client/src/API/admin/adminClient.js`
+* `client/src/pages/MailManagement/index.jsx`
+
+---
+
+## Dependency
+
+* **Admin Backend APIs — Full System Control**
+
+The frontend should assume that task is completed and consume those endpoints directly.
+
+---
+
+## Recommended implementation order
+
+### Phase 1 — plumbing
+
+* admin API client methods
+* route registration
+* sidebar updates
+* `AdminRoute` protection verification
+
+### Phase 2 — existing page enhancement
+
+* User Management upgrades
+
+### Phase 3 — core admin tables
+
+* Checks
+* Banks
+* Payees
+* Transactions
+* Organizations
+
+### Phase 4 — observability/config
+
+* Audit Logs
+* Platform Settings
+* Integrations
+* Attachments & Imports
+
+---
+
+## Developer note
+
+This task should produce a real superadmin workspace, not just a few extra tables. Focus on consistency, reuse, and admin usability so the entire backend control layer becomes operable from the frontend without another redesign.
+
+I can also turn this into a **strict PRD format** with sections like **Objective / Scope / User Stories / Acceptance Criteria / UI States / API mapping / Component breakdown** if you want it in the exact format you hand to developers.

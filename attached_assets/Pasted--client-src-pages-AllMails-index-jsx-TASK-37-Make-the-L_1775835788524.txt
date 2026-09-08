@@ -1,0 +1,69 @@
+// client/src/pages/AllMails/index.jsx
+//
+// TASK #37 — Make the Lob letter ID in the table a clickable link.
+// Lines 108-116 per the ticket. Two changes needed:
+//
+//  1. Add the useNavigate import (if not already present)
+//  2. Replace the plain text Lob ID cell with a clickable MUI Link
+
+// ─── Change 1: add useNavigate ────────────────────────────────────────────────
+// BEFORE (somewhere near the top of the file):
+import { useNavigate } from "react-router-dom";
+// (add this import if it isn't already there)
+
+
+// ─── Change 2: make the Lob ID cell a clickable link ─────────────────────────
+//
+// Find the table column that renders the Lob letter ID.
+// It will look something like one of these patterns:
+//
+//   Pattern A — plain cell value:
+//     <TableCell>{row.lobId}</TableCell>
+//
+//   Pattern B — already has some wrapper:
+//     <TableCell><Typography>{row.lobId}</Typography></TableCell>
+//
+// Replace whichever pattern you have with the MUI Link version below.
+// The exact prop name for the Lob ID may be lobId, lob_id, lobLetterId, etc. —
+// match whatever your data shape uses.
+
+// ADD this import at the top alongside other MUI imports:
+import { Link } from "@mui/material";
+
+// REPLACE the Lob ID table cell (adjust the prop name to match your data):
+<TableCell>
+  {row.lobId ? (
+    <Link
+      component="button"
+      variant="body2"
+      onClick={() => navigate(`/dashboard/mail-tracking/${row.lobId}`)}
+      sx={{ fontFamily: "monospace", textAlign: "left" }}
+    >
+      {row.lobId}
+    </Link>
+  ) : (
+    "—"
+  )}
+</TableCell>
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NOTE: If AllMails uses a DataGrid (MUI X) instead of a plain Table,
+// the column definition will look like this instead:
+// ─────────────────────────────────────────────────────────────────────────────
+//
+//   {
+//     field: "lobId",
+//     headerName: "Lob ID",
+//     flex: 1,
+//     renderCell: ({ value }) =>
+//       value ? (
+//         <Link
+//           component="button"
+//           variant="body2"
+//           onClick={() => navigate(`/dashboard/mail-tracking/${value}`)}
+//           sx={{ fontFamily: "monospace" }}
+//         >
+//           {value}
+//         </Link>
+//       ) : "—",
+//   },

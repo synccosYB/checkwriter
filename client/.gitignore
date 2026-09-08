@@ -1,0 +1,10 @@
+/node_modules/
+/build/
+
+# Ignore all .env files
+.env*
+
+# Allow .env.sample
+!.env.sample
+# Sentry Config File
+.sentryclirc

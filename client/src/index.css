@@ -1,0 +1,617 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        min-height: 100vh;
+        height: 100%;
+        background-color: #f5f7fa;
+        color: #1a1a2e;
+}
+
+#root {
+        height: 100%;
+        margin:0;
+}
+
+body::-webkit-scrollbar {
+        display: none;
+}
+
+code {
+        font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+                monospace;
+}
+
+* {
+        --unstable_DataGrid-radius: 12px;
+}
+
+p {
+        color: #1a1a2e;
+}
+
+@font-face {
+        font-family: 'MICR';
+        src: url('./assets/fonts/micr-encoding.regular.ttf');
+}
+
+@font-face {
+        font-family: 'Albanian';
+        src: url('./assets/fonts/Albanian.ttf');
+}
+
+.fs-14 {
+        font-size: 14px !important;
+}
+
+.fs-12 {
+        font-size: 12px !important;
+}
+
+h1.primary-header {
+        font-size: 4rem;
+        font-weight: 600;
+}
+
+h2.section-head {
+        font-weight: 600;
+        font-size: 48px;
+        text-align: center;
+        color: #ffffff;
+}
+
+button.common-btn {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 8px 16px;
+        color: #1a1a2e;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'Inter';
+        transition: all 0.2s ease;
+}
+
+.clickableRow:hover {
+        cursor: pointer;
+        background-color: rgba(31, 59, 99, 0.04);
+}
+
+button.common-btn.dark-btn {
+        color: #fff;
+        background-color: #1e3a5f;
+}
+
+button.common-btn.dark {
+        background-color: #1e3a5f;
+        border: 0px solid #1e3a5f;
+        color: #fff;
+}
+
+button {
+        border-radius: 10px;
+}
+
+button.common-btn.black-button {
+        background-color: #1a1a2e;
+        color: #fff !important;
+}
+
+button.common-btn.black-button.glassmorph-btn {
+        position: relative;
+        border: 1px solid rgba(150, 150, 150, 0.8);
+        border-right: 1px solid rgba(150, 150, 150, 0.6);
+        border-bottom: 1px solid rgba(150, 150, 150, 0.6);
+        backdrop-filter: blur(10px);
+        transition: 0.5s;
+        overflow: hidden;
+}
+
+button.common-btn.black-button.glassmorph-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50px;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.5);
+        transform: skewX(45deg) translateX(180px);
+        transition: 0.5s;
+}
+
+@keyframes glassmorphicBlackAnim {
+        0% {
+                transform: skewX(45deg) translateX(180px);
+        }
+
+        50% {
+                transform: skewX(45deg) translateX(-100px);
+        }
+
+        100% {
+                transform: skewX(45deg) translateX(180px);
+        }
+}
+
+button.common-btn.black-button.glassmorph-btn:hover {
+        background-color: #1a1a2e;
+}
+
+button.common-btn.black-button.glassmorph-btn:hover::before {
+        transform: skewX(45deg) translateX(-100px);
+}
+
+button.common-btn.dark:hover {
+        background-color: #152d4a;
+}
+
+button.common-btn.dark:disabled {
+        background-color: #eef1f5;
+        color: #96a0ad;
+        border-color: #eef1f5;
+}
+
+button.common-btn.light {
+        border: 1px solid #d9e0e8;
+        color: #1a1a2e;
+}
+
+button.common-btn.light:hover {
+        background-color: #f0f2f5;
+}
+
+button.common-btn.danger {
+        background-color: #d44040;
+        color: #ffffff;
+}
+
+button.common-btn.danger:hover {
+        background-color: #b02a2a;
+}
+
+button.common-btn.danger:disabled {
+        background-color: #e08080;
+}
+
+button.add-btn.icon-type-btn {
+        background: rgba(31, 59, 99, 0.08);
+        padding: 7.8px 10px;
+        border-radius: 0 10px 10px 0;
+        border: 1px solid #d9e0e8;
+        border-left: 0;
+}
+
+button.add-btn.icon-type-btn:disabled {
+        background: #eef1f5;
+        border: 1px solid #d9e0e8;
+        border-left: 0;
+}
+
+.company-logo-header:hover {
+        cursor: pointer;
+}
+
+.image-upload > input {
+        display: none;
+}
+
+.image-upload {
+        width: '300px';
+        height: '300px';
+        border-radius: '150px';
+        background-color: '#999999';
+}
+
+.image-upload-label:hover {
+        cursor: pointer;
+}
+
+.dot {
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        display: inline-block;
+}
+
+.dot_bigger {
+        height: 12px;
+        width: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        z-index: 2;
+}
+
+.dot_bigger_overlap {
+        height: 9px;
+        width: 9px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: -3px;
+        z-index: 2;
+}
+
+.color-box {
+        border: 1px solid #d9e0e8;
+        border-radius: 10px;
+        padding: 10.5px 11px;
+}
+
+.viewAll:hover {
+        text-decoration: underline;
+        cursor: pointer;
+}
+
+.list-item-new:hover {
+        background-color: #f0f2f5;
+        cursor: pointer;
+}
+
+.status-choices:hover {
+        background-color: #f0f2f5;
+}
+
+.status-choice-button {
+        mix-blend-mode: multiply;
+}
+
+.color-box:hover {
+        cursor: pointer;
+}
+
+.single_color_picker_tag {
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+}
+
+.single_color_picker:hover {
+        cursor: pointer;
+}
+
+.single_color_picker_tag:hover {
+        cursor: pointer;
+}
+
+.group_color_picker:hover {
+        cursor: pointer;
+}
+
+.color-swatch:hover {
+        cursor: pointer;
+}
+
+.txt-danger {
+        color: #d44040;
+}
+
+p.headline-txt {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 1rem 0;
+        color: #5b6472;
+}
+
+p.subheadline-txt {
+        font-size: 1.125rem;
+        font-weight: 500;
+        color: #96a0ad;
+        margin: 1rem 0;
+}
+
+.form-check-input[type='checkbox']:checked {
+        background-color: #1e3a5f;
+        border-color: #1e3a5f;
+}
+
+.tag-card:hover {
+        cursor: pointer;
+}
+
+h1 {
+        font-weight: bold;
+}
+
+.clearFilter:hover {
+        text-decoration: underline;
+}
+
+.icon {
+        width: 3.75rem;
+        height: 3.75rem;
+}
+
+.icon svg {
+        width: 1.5rem;
+        height: auto;
+}
+
+.icon.light-bg {
+        background-color: #31527f;
+        border: 5px solid #1e3a5f;
+        border-radius: 50px;
+}
+
+.form-field-spinner {
+        position: absolute;
+        top: 11px;
+        right: 25px;
+}
+
+.check-tooltip-popper .MuiTooltip-tooltip {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Success Tick css */
+
+.success-check {
+        margin: 0 auto;
+}
+
+.svg-success {
+        display: inline-block;
+        vertical-align: top;
+        height: 25px;
+        width: 25px;
+        opacity: 1;
+        overflow: visible;
+}
+
+@-webkit-keyframes success-tick {
+        0% {
+                stroke-dashoffset: 16px;
+                opacity: 1;
+        }
+
+        100% {
+                stroke-dashoffset: 31px;
+                opacity: 1;
+        }
+}
+
+@keyframes success-tick {
+        0% {
+                stroke-dashoffset: 16px;
+                opacity: 1;
+        }
+
+        100% {
+                stroke-dashoffset: 31px;
+                opacity: 1;
+        }
+}
+
+@-webkit-keyframes success-circle-outline {
+        0% {
+                stroke-dashoffset: 72px;
+                opacity: 1;
+        }
+
+        100% {
+                stroke-dashoffset: 0px;
+                opacity: 1;
+        }
+}
+
+@keyframes success-circle-outline {
+        0% {
+                stroke-dashoffset: 72px;
+                opacity: 1;
+        }
+
+        100% {
+                stroke-dashoffset: 0px;
+                opacity: 1;
+        }
+}
+
+@-webkit-keyframes success-circle-fill {
+        0% {
+                opacity: 0;
+        }
+
+        100% {
+                opacity: 1;
+        }
+}
+
+@keyframes success-circle-fill {
+        0% {
+                opacity: 0;
+        }
+
+        100% {
+                opacity: 1;
+        }
+}
+
+.svg-success .success-tick {
+        fill: none;
+        stroke-width: 2px;
+        stroke: #2e7d5b;
+        stroke-dasharray: 15px, 15px;
+        stroke-dashoffset: -14px;
+        -webkit-animation: success-tick 450ms ease 1400ms forwards;
+        animation: success-tick 450ms ease 1400ms forwards;
+        opacity: 0;
+}
+
+.svg-success .success-circle-outline {
+        fill: none;
+        stroke-width: 1px;
+        stroke: #fff;
+        stroke-dasharray: 72px, 72px;
+        stroke-dashoffset: 72px;
+        -webkit-animation: success-circle-outline 300ms ease-in-out 800ms forwards;
+        animation: success-circle-outline 300ms ease-in-out 800ms forwards;
+        opacity: 0;
+}
+
+.svg-success .success-circle-fill {
+        fill: #fff;
+        background: linear-gradient(
+                245.56deg,
+                #2e7d5b 14.6%,
+                #1e3a5f 55.33%,
+                #31527f 84.95%
+        );
+        stroke: none;
+        opacity: 0;
+        -webkit-animation: success-circle-fill 300ms ease-out 1100ms forwards;
+        animation: success-circle-fill 300ms ease-out 1100ms forwards;
+}
+
+@media screen and (-ms-high-contrast: active),
+        screen and (-ms-high-contrast: none) {
+        .svg-success .success-tick {
+                stroke-dasharray: 0;
+                stroke-dashoffset: 0;
+                -webkit-animation: none;
+                animation: none;
+                opacity: 1;
+        }
+
+        .svg-success .success-circle-outline {
+                stroke-dasharray: 0;
+                stroke-dashoffset: 0;
+                -webkit-animation: none;
+                animation: none;
+                opacity: 1;
+        }
+
+        .svg-success .success-circle-fill {
+                -webkit-animation: none;
+                animation: none;
+                opacity: 1;
+        }
+}
+
+.integration-grid1 .integration-div1 {
+        border: 1px solid #d9e0e8;
+        border-radius: 0.75rem;
+        padding: 1rem 0;
+        width: auto;
+        padding: 60px !important;
+}
+
+.justify-space-even {
+        justify-content: space-evenly !important;
+}
+
+.btn-ex-lg {
+        transform: scale(1.3);
+}
+/* Success Tick css ends */
+/* Billing */
+
+.billing-container {
+        padding: 20px;
+}
+
+.header .logo {
+        display: block;
+        margin: 0 auto;
+}
+
+.content {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+}
+
+.subscriptions,
+.account-billing {
+        width: 50%;
+}
+
+.subscriptionsIn,
+.account-billing {
+        max-width: 100%;
+}
+
+.subscriptions3,
+.account-billing {
+        width: 100%;
+}
+
+.green-circle {
+        width: 10px;
+        height: 10px;
+        background-color: #2e7d5b;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+}
+
+.cancel-button {
+        float: right;
+        text-transform: none;
+}
+
+.subscription-details {
+        margin-top: 20px;
+}
+
+.subscriptions {
+        position: relative;
+}
+.subscription-details > div {
+        margin-bottom: 10px;
+}
+
+.next-invoice {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 16px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06);
+        background-color: white;
+        border-radius: 10px;
+}
+
+.next-invoice1 {
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 16px;
+        margin-bottom: 5px;
+}
+.margin-bottom {
+        margin-bottom: 30px;
+}
+.account-balance {
+        text-align: center;
+        margin-bottom: 20px;
+}
+
+.billing-info .edit-button {
+        float: right;
+        text-transform: none;
+}
+
+.billing-details {
+        margin-top: 20px;
+}
+
+.invoices {
+        text-align: center;
+        margin-top: 20px;
+}
+
+.all-invoices-button {
+        text-transform: none;
+}
+
+.flex-container {
+        display: flex;
+        align-items: center;
+}
+
+.flex-container .inline-text {
+        margin-left: 5px;
+}
+

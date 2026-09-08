@@ -1,0 +1,14 @@
+/package-lock.json
+/node_modules/
+
+.vercel
+.env
+
+/config/*
+!config/default.json
+!config/example.json
+!config/custom-environment-variables.json
+
+/dist/*
+
+.vscode/*

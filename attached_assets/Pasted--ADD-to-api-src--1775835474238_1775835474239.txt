@@ -1,0 +1,116 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD to api/src/utils/email-templates.util.js
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Generates the HTML body for admin support emails.
+ * Matches the existing transactional email style — swap in your
+ * actual brand colors, logo URL, and footer links.
+ *
+ * @param {object} params
+ * @param {string} params.toName       - Recipient's display name
+ * @param {string} params.subject      - Email subject (shown in header)
+ * @param {string} params.body         - Plain-text message body (newlines → <br>)
+ * @returns {string} HTML string
+ */
+const adminSupportEmailTemplate = ({ toName, subject, body }) => {
+  // Escape HTML entities in user-supplied content
+  const escapeHtml = (str) =>
+    String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
+  const safeBody = escapeHtml(body).replace(/\n/g, '<br>');
+  const safeName = escapeHtml(toName);
+  const safeSubject = escapeHtml(subject);
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${safeSubject}</title>
+  <style>
+    body { margin: 0; padding: 0; background-color: #f4f6f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .header { background-color: #1a1a2e; padding: 28px 40px; text-align: center; }
+    .header img { height: 36px; }
+    .header-title { color: #ffffff; font-size: 18px; font-weight: 600; margin: 12px 0 0; }
+    .content { padding: 36px 40px; color: #374151; font-size: 15px; line-height: 1.7; }
+    .content h2 { margin-top: 0; color: #111827; font-size: 20px; }
+    .message-body { background: #f9fafb; border-left: 4px solid #6366f1; padding: 16px 20px; border-radius: 4px; margin: 20px 0; color: #374151; font-size: 15px; line-height: 1.7; }
+    .footer { background-color: #f4f6f8; padding: 20px 40px; text-align: center; font-size: 12px; color: #9ca3af; }
+    .footer a { color: #6366f1; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <!-- Replace with your actual logo -->
+      <div class="header-title">Synccos Support</div>
+    </div>
+    <div class="content">
+      <h2>Hello, ${safeName}</h2>
+      <p>You have a new message from the Synccos support team regarding: <strong>${safeSubject}</strong></p>
+      <div class="message-body">${safeBody}</div>
+      <p>If you have questions or need further assistance, please reply to this email or contact us at <a href="mailto:support@synccos.com">support@synccos.com</a>.</p>
+      <p>Best regards,<br><strong>The Synccos Team</strong></p>
+    </div>
+    <div class="footer">
+      <p>&copy; ${new Date().getFullYear()} Synccos. All rights reserved.</p>
+      <p>
+        <a href="https://synccos.com/privacy">Privacy Policy</a> &nbsp;·&nbsp;
+        <a href="https://synccos.com/terms">Terms of Service</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+};
+
+module.exports = { adminSupportEmailTemplate };
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD to api/src/services/email.service.js
+// ─────────────────────────────────────────────────────────────────────────────
+// Import at the top:
+//   const { adminSupportEmailTemplate } = require('../utils/email-templates.util');
+//   const sendGridUtil = require('../utils/send-grid.util');
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Sends an admin support email to a user via SendGrid.
+ *
+ * @param {object} params
+ * @param {string} params.toEmail   - Recipient email address
+ * @param {string} params.toName    - Recipient display name
+ * @param {string} params.subject   - Email subject line
+ * @param {string} params.body      - Plain-text message body
+ * @returns {Promise<object>} SendGrid response
+ */
+const sendAdminSupportEmail = async ({ toEmail, toName, subject, body }) => {
+  const html = adminSupportEmailTemplate({ toName, subject, body });
+
+  // Adjust this call to match your existing sendGridUtil API
+  // e.g. sendGridUtil.send({ to, from, subject, html })
+  const response = await sendGridUtil.send({
+    to: toEmail,
+    from: {
+      email: process.env.SUPPORT_FROM_EMAIL || 'support@synccos.com',
+      name: 'Synccos Support',
+    },
+    subject,
+    html,
+    // plain-text fallback
+    text: body,
+  });
+
+  return { messageId: response?.[0]?.headers?.['x-message-id'] || null };
+};
+
+module.exports = { sendAdminSupportEmail };

@@ -1,0 +1,69 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// CHANGES TO: client/src/pages/UserManagement/index.jsx
+//
+// Four targeted additions — search for each anchor comment and add the
+// corresponding lines. No existing code needs to be removed.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── ADDITION 1: New import (add alongside existing modal imports) ─────────────
+
+import MassEmailModal from './components/modals/MassEmailModal';
+
+
+// ── ADDITION 2: New state variable (add inside the component body) ────────────
+
+const [massEmailModalOpen, setMassEmailModalOpen] = useState(false);
+
+// If you have a `totalUserCount` or `users.length` available, pass it
+// to the modal for a better "X users" label. Example:
+//   const totalUserCount = pagination?.total ?? users?.length ?? 0;
+
+
+// ── ADDITION 3: "Send Mass Email" button (add in the page header action area,
+//    near the existing per-user actions toolbar or top-right button group) ─────
+
+/*
+  <Button
+    variant="outlined"
+    color="primary"
+    startIcon={<EmailIcon />}           // import EmailIcon from '@mui/icons-material/Email'
+    onClick={() => setMassEmailModalOpen(true)}
+    sx={{ whiteSpace: 'nowrap' }}
+  >
+    Send Mass Email
+  </Button>
+*/
+
+
+// ── ADDITION 4: Render the modal (add near bottom of return JSX, alongside
+//    other modal declarations like SendEmailModal) ────────────────────────────
+
+/*
+  <MassEmailModal
+    open={massEmailModalOpen}
+    onClose={() => setMassEmailModalOpen(false)}
+    totalUserCount={totalUserCount}     // optional but recommended
+  />
+*/
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FULL EXAMPLE of what the header action area might look like after the change:
+// ─────────────────────────────────────────────────────────────────────────────
+
+/*
+  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+    <TextField ... />   {/* existing search field *}
+
+    {/* existing buttons ... *}
+
+    <Button                             {/* ← NEW *}
+      variant="outlined"
+      color="primary"
+      startIcon={<EmailIcon />}
+      onClick={() => setMassEmailModalOpen(true)}
+    >
+      Send Mass Email
+    </Button>
+  </Box>
+*/

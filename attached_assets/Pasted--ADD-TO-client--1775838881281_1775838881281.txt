@@ -1,0 +1,72 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD TO: client/src/API/admin/adminClient.js
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Send a mass support email to all users (or a filtered subset).
+ *
+ * @param {{ subject: string, body: string, filter?: { role?: string, subscriptionStatus?: string } }} payload
+ * @returns {Promise<{ message: string, recipientCount: number }>}
+ */
+export const sendMassSupportEmail = async (payload) => {
+  const response = await apiClient.post('/admin/users/mass-email', payload);
+  return response.data;
+};
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NEW FILE: client/src/API/admin/useSendMassEmail.ts
+// Mirrors the pattern of useSendSupportEmail.ts from ticket #26
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { useState } from 'react';
+import { sendMassSupportEmail } from './adminClient';
+
+export interface MassEmailFilter {
+  role?: string;
+  subscriptionStatus?: string;
+}
+
+export interface MassEmailPayload {
+  subject: string;
+  body: string;
+  filter?: MassEmailFilter;
+}
+
+export interface MassEmailResult {
+  message: string;
+  recipientCount: number;
+}
+
+type Status = 'idle' | 'loading' | 'success' | 'error';
+
+export const useSendMassEmail = () => {
+  const [status, setStatus] = useState<Status>('idle');
+  const [result, setResult] = useState<MassEmailResult | null>(null);
+  const [error, setError] = useState<string>('');
+
+  const send = async (payload: MassEmailPayload): Promise<MassEmailResult | null> => {
+    setStatus('loading');
+    setError('');
+    try {
+      const data = await sendMassSupportEmail(payload);
+      setResult(data);
+      setStatus('success');
+      return data;
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message || 'Failed to send mass email. Please try again.';
+      setError(msg);
+      setStatus('error');
+      return null;
+    }
+  };
+
+  const reset = () => {
+    setStatus('idle');
+    setResult(null);
+    setError('');
+  };
+
+  return { send, status, result, error, reset };
+};

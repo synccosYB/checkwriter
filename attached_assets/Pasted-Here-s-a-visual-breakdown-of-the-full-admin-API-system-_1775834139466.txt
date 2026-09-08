@@ -1,0 +1,17 @@
+Here's a visual breakdown of the full admin API system from the spec — organized by domain layer:Here's a breakdown of the implementation task by task, working from the bottom up:
+
+**Schema first (unblock everything else).** Add `is_active boolean not null default true` and `subscription_price_override numeric null` to `users`, create or extend `platform_settings` with `key/value/type/updated_by/updated_at`, and confirm `audit_logs` has room for `actor_id`, `action`, `entity_type`, `entity_id`, `metadata` (JSON for before/after), and `created_at`.
+
+**Middleware + auth layer next.** The `is_active` check needs to land in `authorization.middleware.js` so existing tokens immediately stop working for deactivated users — this is foundational and affects all subsequent testing.
+
+**admin.service.js as the query hub.** All cross-user data access lives here. The key pattern is stripping `where owner_id = $userId` from queries and replacing it with optional filter parameters. Build a shared `writeAuditLog(actor, action, entityType, entityId, before, after)` helper early — every subsequent service call will use it.
+
+**Entity endpoints (checks → banks → payees → transactions → orgs).** Checks are the most complex because of the void vs. hard-delete logic and the safe-update rules for printed/mailed checks. Transactions are the simplest (read-only). Organizations need soft-delete logic if dependent records exist.
+
+**Platform settings + mailing prices.** These are effectively a key-value store. Store mailing prices as `mailing_prices` (single JSON key) or three discrete keys — the discrete approach is easier to query individually. Both `GET /admin/platform-settings/:key` and `PUT /admin/platform-settings/:key` should serialize/deserialize based on the `type` field.
+
+**Observability endpoints.** Audit logs, integrations, attachments, and check imports are all read-only, so they're low-risk. Integration status just reads existing QB/Stripe/Plaid connection records without calling upstream APIs.
+
+**Response shape consistency.** Every list endpoint returns `{ data: [...], pagination: { page, limit, total } }`. Detail endpoints include ownership context (owning user ID/email, org name) so the eventual admin UI doesn't need extra round trips.
+
+The main gotchas to watch for: making sure admin filter parameters in list endpoints are additive (all optional, don't break each other), and ensuring the audit log `metadata` payload captures enough to reconstruct what changed — a `before` snapshot on updates is the safest approach even if it's slightly verbose.

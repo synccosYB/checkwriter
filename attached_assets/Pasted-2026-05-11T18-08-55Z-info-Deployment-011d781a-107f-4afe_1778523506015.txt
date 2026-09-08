@@ -1,0 +1,282 @@
+2026-05-11T18:08:55Z info: Deployment: 011d781a-107f-4afe-858c-8ee53511c007
+2026-05-11T18:08:55Z info: Build: bd95f1b3-68de-4b05-8a8a-2f3737624397
+2026-05-11T18:08:56Z info: Running Security Scan
+2026-05-11T18:09:17Z info: Security Scan Complete
+2026-05-11T18:09:23Z info: Installing packages
+--> npm install
+
+
+> synccos-check-writer-monorepo@1.0.0 postinstall
+> cd api && npm install && cd ../client && npm install
+
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+added 1 package, and audited 582 packages in 6s
+
+55 packages are looking for funding
+  run `npm fund` for details
+
+
+15 vulnerabilities (14 moderate, 1 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date, audited 1655 packages in 7s
+
+
+297 packages are looking for funding
+
+  run `npm fund` for details
+
+
+34 vulnerabilities (17 low, 13 moderate, 4 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+removed 1 package, and audited 42 packages in 15s
+
+2 packages are looking for funding
+
+  run `npm fund` for details
+
+
+4 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.14.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.14.1
+npm notice To update run: npm install -g npm@11.14.1
+npm notice
+
+2026-05-11T18:09:39Z info: Starting Build
+=== Building unified deployment (API + client) ===
+=== Installing root dependencies ===
+
+
+> synccos-check-writer-monorepo@1.0.0 postinstall
+> cd api && npm install && cd ../client && npm install
+
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+up to date, audited 582 packages in 1s
+
+
+55 packages are looking for funding
+  run `npm fund` for details
+
+
+15 vulnerabilities (14 moderate, 1 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date, audited 1655 packages in 2s
+
+
+297 packages are looking for funding
+  run `npm fund` for details
+
+
+34 vulnerabilities (17 low, 13 moderate, 4 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date in 4s
+
+=== Installing API dependencies ===
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+up to date in 839ms
+
+=== Syncing database schema ===
+
+No config path provided, using default 'drizzle.config.ts'
+
+Reading config file '/home/runner/workspace/api/drizzle.config.ts'
+
+Using 'pg' driver for database querying
+
+[⣷] Pulling schema from database...
+
+(node:218) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[✓] Pulling schema from database...
+
+error: relation "scheduled_job_runs" already exists
+    at /home/runner/workspace/api/node_modules/pg-pool/index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Object.query (/home/runner/workspace/api/node_modules/drizzle-kit/bin.cjs:78906:26)
+    at async pgPush (/home/runner/workspace/api/node_modules/drizzle-kit/bin.cjs:82768:13)
+    at async Object.handler (/home/runner/workspace/api/node_modules/drizzle-kit/bin.cjs:92226:9)
+    at async run (/home/runner/workspace/api/node_modules/drizzle-kit/bin.cjs:91472:7) {
+  length: 112,
+  severity: 'ERROR',
+  code: '42P07',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'heap.c',
+  line: '1150',
+  routine: 'heap_create_with_catalog'
+}
+
+=== Building React client ===
+
+REACT_APP_BASE_URL=/api
+
+Creating an optimized production build...

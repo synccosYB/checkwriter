@@ -1,0 +1,562 @@
+2026-06-15T21:16:33Z info: Deployment: 011d781a-107f-4afe-858c-8ee53511c007
+2026-06-15T21:16:33Z info: Build: 4be1fbb7-affe-45f3-83ff-0a233c590bf2
+2026-06-15T21:16:34Z info: Running Security Scan
+2026-06-15T21:16:44Z warn: Security scan skipped: connection lost
+2026-06-15T21:17:04Z info: Installing packages
+--> npm install
+
+
+> synccos-check-writer-monorepo@1.0.0 postinstall
+> cd api && npm install && cd ../client && npm install
+
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+added 1 package, and audited 582 packages in 48s
+
+55 packages are looking for funding
+  run `npm fund` for details
+
+
+23 vulnerabilities (17 moderate, 6 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date, audited 1655 packages in 1m
+
+297 packages are looking for funding
+  run `npm fund` for details
+
+
+44 vulnerabilities (16 low, 20 moderate, 7 high, 1 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+removed 1 package, and audited 42 packages in 2m
+
+2 packages are looking for funding
+  run `npm fund` for details
+
+
+5 vulnerabilities (2 moderate, 3 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.17.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+npm notice To update run: npm install -g npm@11.17.0
+npm notice
+
+2026-06-15T21:19:52Z info: Starting Build
+=== Building unified deployment (API + client) ===
+=== Installing root dependencies ===
+
+
+> synccos-check-writer-monorepo@1.0.0 postinstall
+> cd api && npm install && cd ../client && npm install
+
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+up to date, audited 582 packages in 14s
+
+55 packages are looking for funding
+  run `npm fund` for details
+
+
+23 vulnerabilities (17 moderate, 6 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date, audited 1655 packages in 27s
+
+297 packages are looking for funding
+  run `npm fund` for details
+
+
+44 vulnerabilities (16 low, 20 moderate, 7 high, 1 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date in 48s
+
+=== Installing API dependencies ===
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+up to date in 9s
+
+=== Syncing database schema ===
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/home/runner/workspace/api/drizzle.config.ts'
+
+Using 'pg' driver for database querying
+
+[⣷] Pulling schema from database...
+
+(node:238) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[✓] Pulling schema from database...
+
+[✓] Changes applied
+
+=== Building React client ===
+
+REACT_APP_BASE_URL=/api
+
+Creating an optimized production build...
+
+2026-06-15T21:37:02Z info: Installing packages
+2026-06-15T21:37:29Z info: Starting Build
+=== Building unified deployment (API + client) ===
+=== Installing root dependencies ===
+
+
+> synccos-check-writer-monorepo@1.0.0 postinstall
+> cd api && npm install && cd ../client && npm install
+
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+up to date, audited 582 packages in 40s
+
+55 packages are looking for funding
+  run `npm fund` for details
+
+
+23 vulnerabilities (17 moderate, 6 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date, audited 1655 packages in 1m
+
+297 packages are looking for funding
+  run `npm fund` for details
+
+
+44 vulnerabilities (16 low, 20 moderate, 7 high, 1 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date in 3m
+
+=== Installing API dependencies ===
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+up to date in 8s
+
+=== Syncing database schema ===
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file '/home/runner/workspace/api/drizzle.config.ts'
+
+Using 'pg' driver for database querying
+
+[⣷] Pulling schema from database...
+(node:413) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[✓] Pulling schema from database...
+
+[✓] Changes applied
+
+=== Building React client ===
+
+REACT_APP_BASE_URL=/api
+
+Creating an optimized production build...
+

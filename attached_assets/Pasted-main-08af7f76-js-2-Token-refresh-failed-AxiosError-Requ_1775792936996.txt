@@ -1,0 +1,50 @@
+main.08af7f76.js:2 Token refresh failed: AxiosError: Request failed with status code 404
+    at Ly (main.08af7f76.js:2:1609672)
+    at XMLHttpRequest.f (main.08af7f76.js:2:1614585)
+    at Sv.request (main.08af7f76.js:2:1626185)
+    at async SC.handleAccessTokenRefresh (main.08af7f76.js:2:1657132)
+    at async main.08af7f76.js:2:1656252
+    at async Sv.request (main.08af7f76.js:2:1626089)
+    at async SC.request (main.08af7f76.js:2:1657948)
+onRefreshTokenFailure @ main.08af7f76.js:2
+handleAccessTokenRefresh @ main.08af7f76.js:2Understand this error
+2main.08af7f76.js:2 Access token not found.
+(anonymous) @ main.08af7f76.js:2Understand this warning
+client:132 Cross-Origin-Opener-Policy policy would block the window.closed call.
+(anonymous) @ client:132
+Nf @ client:126
+(anonymous) @ client:125
+(anonymous) @ client:128Understand this error
+client:132 Cross-Origin-Opener-Policy policy would block the window.closed call.
+(anonymous) @ client:132
+Nf @ client:126
+(anonymous) @ client:125
+(anonymous) @ client:128Understand this error
+main.08af7f76.js:2 Access token not found.
+(anonymous) @ main.08af7f76.js:2Understand this warning
+client:132 Cross-Origin-Opener-Policy policy would block the window.closed call.
+(anonymous) @ client:132
+Nf @ client:126
+(anonymous) @ client:125
+(anonymous) @ client:128Understand this error
+client:132 Cross-Origin-Opener-Policy policy would block the window.closed call.
+(anonymous) @ client:132
+Nf @ client:126
+(anonymous) @ client:125
+(anonymous) @ client:128Understand this error
+client:132 Cross-Origin-Opener-Policy policy would block the window.closed call.
+(anonymous) @ client:132
+Nf @ client:126
+(anonymous) @ client:125
+(anonymous) @ client:128Understand this error
+client:132 Cross-Origin-Opener-Policy policy would block the window.closed call.
+(anonymous) @ client:132
+Nf @ client:126
+(anonymous) @ client:125
+(anonymous) @ client:128Understand this error
+client:132 Cross-Origin-Opener-Policy policy would block the window.closed call.
+(anonymous) @ client:132
+Nf @ client:126
+(anonymous) @ client:125
+(anonymous) @ client:128Understand this error
+client:132 Cross-Origin-Opener-Policy policy would block the window.closed call.

@@ -1,0 +1,372 @@
+#26 - Admin Support Email Messaging
+
+Objective
+
+Add an admin-only support email feature inside the admin dashboard so admins can send direct emails to individual users and view the sent message history for that user.
+
+What & Why
+
+Admins currently need to leave the platform to email users about support issues, account questions, or important updates. This creates friction and makes it harder to keep communication tied to the user record.
+
+This feature adds a simple internal email workflow to the admin panel:
+
+send a support email to a single user directly from User Management
+use the existing SendGrid setup and existing email styling
+log every sent message in the database
+show prior sent messages for that user inside the admin UI
+
+This keeps support communication faster, more organized, and easier to audit.
+
+Done looks like
+On the User Management page, each user row includes a Send Email action
+Clicking Send Email opens a compose modal/dialog
+The dialog pre-fills the selected user’s email address
+Admin can enter:
+subject
+message body
+Email sends through the existing SendGrid integration
+Email uses a consistent approved sender address such as:
+support@synccos.com
+or existing configured no-reply/support sender
+A message record is stored for each successfully sent email
+Admin can open a message history view for a user and see previously sent admin emails
+UI shows loading, success, and error states
+History endpoint supports pagination
+Access is restricted to admins only
+Out of scope
+Receiving replies inside the admin panel
+Bulk emailing multiple users
+Saved drafts
+Reusable templates chooser
+Attachments
+CC/BCC controls
+Open tracking, click tracking, delivery analytics
+Functional requirements
+1) Send support email
+
+Admins can send a direct support email to one user from the admin panel.
+
+Required behavior:
+
+User email is pre-filled from the selected user record
+Email address is displayed read-only in the modal by default
+Admin enters subject and body
+Body may be plain text or existing editor-supported rich text, depending on current frontend/editor patterns
+On send:
+validate required fields
+call backend admin email endpoint
+send email via existing SendGrid service
+persist sent message record if send succeeds
+Show success toast/message after send
+Show error state if sending fails
+2) Email history
+
+Admins can view a history of previously sent admin emails for a specific user.
+
+Required behavior:
+
+History is available from the same user row or user detail area
+History view shows:
+sent at
+sender/admin
+recipient email
+subject
+preview/snippet of body
+Admin can open a history item to view the full sent content
+History is paginated on backend and frontend
+3) Permissions
+
+Only authorized admins can:
+
+send admin support emails
+retrieve admin message history
+4) Email template
+
+Support emails should use the existing branded email wrapper/template style so outbound admin messages look consistent with the platform.
+
+Recommended structure:
+
+branded header/logo area
+message content block
+support/footer block
+plain text fallback where applicable
+API design
+POST /admin/users/:userId/support-email
+
+Send a support email to a specific user.
+
+Request body
+{
+  "subject": "Your subject here",
+  "body": "Message body here"
+}
+Backend flow
+Verify admin auth/privileges
+Load target user by userId
+Validate user exists and has email
+Validate subject/body
+Build branded email HTML using existing template utility
+Send through existing SendGrid utility/service
+Store sent message record in admin_messages
+Return success response
+Success response
+{
+  "success": true,
+  "message": "Email sent successfully"
+}
+Failure cases
+400 invalid subject/body
+404 user not found
+403 unauthorized
+500 send failure / persistence failure
+GET /admin/users/:userId/support-email-history?page=1&limit=20
+
+Fetch paginated admin message history for a specific user.
+
+Response shape
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "_id": "msg_id",
+        "userId": "user_id",
+        "recipientEmail": "user@example.com",
+        "senderAdminId": "admin_id",
+        "senderAdminName": "Admin Name",
+        "subject": "Subject line",
+        "body": "<p>Message body</p>",
+        "createdAt": "2026-04-07T12:00:00.000Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 42,
+      "pages": 3
+    }
+  }
+}
+Data model
+
+Create a new MongoDB collection, for example: admin_messages
+
+Suggested schema:
+
+{
+  userId: ObjectId,              // target user
+  recipientEmail: String,        // email sent to
+  senderAdminId: ObjectId,       // admin who sent it
+  senderAdminName: String,       // optional snapshot for audit
+  subject: String,
+  body: String,                  // stored sent body
+  bodyText: String,              // optional plain text version
+  status: String,                // sent / failed (optional if only storing successful sends)
+  provider: String,              // sendgrid
+  providerMessageId: String,     // optional
+  createdAt: Date,
+  updatedAt: Date
+}
+
+Recommended indexes:
+
+{ userId: 1, createdAt: -1 }
+{ recipientEmail: 1, createdAt: -1 }
+Backend tasks
+Controller
+
+Update or extend:
+
+api/src/controllers/admin.controller.js
+
+Add:
+
+sendSupportEmailToUser
+getSupportEmailHistoryForUser
+Service layer
+
+Update:
+
+api/src/services/email.service.js
+
+Add a dedicated service method such as:
+
+sendAdminSupportEmail({ to, subject, body, user, admin })
+
+Responsibilities:
+
+build template payload
+call SendGrid utility
+return provider result
+keep controller thin
+SendGrid utility
+
+Review/update:
+
+api/src/utils/send-grid.util.js
+
+Ensure it supports:
+
+consistent sender address
+html + plain text payload
+returning provider message id if available
+Email template utility
+
+Update:
+
+api/src/utils/email-templates.util.js
+
+Add new template:
+
+buildAdminSupportEmailTemplate(...)
+
+Should match existing styling conventions.
+
+Middleware / route protection
+
+Use:
+
+api/src/middlewares/adminPrivilage.middleware.ts
+
+Ensure both endpoints are admin-protected.
+
+Persistence
+
+Add new model/schema for:
+
+admin_messages
+
+If this codebase uses Mongoose models, create a model accordingly.
+If there is already a shared audit/message pattern, align with it rather than inventing a separate style.
+
+Frontend tasks
+User Management actions
+
+Update:
+
+client/src/pages/UserManagement/index.jsx
+client/src/pages/UserManagement/components
+
+Add per-user actions:
+
+Send Email
+View Email History or similar
+Compose modal
+
+Build a modal/dialog component with:
+
+recipient email field pre-filled
+subject input
+message body input/editor
+cancel/send buttons
+validation messaging
+submit loading state
+
+Suggested fields:
+
+To: read-only
+Subject: required
+Message: required
+History UI
+
+Add a drawer, modal, or expandable panel showing sent message history for the selected user.
+
+Suggested list fields:
+
+date/time
+subject
+sender
+short preview
+
+Optional:
+
+click item to expand full message
+API client
+
+Update:
+
+client/src/API/admin/adminClient.js
+
+Add methods such as:
+
+sendUserSupportEmail(userId, payload)
+getUserSupportEmailHistory(userId, { page, limit })
+UX states
+
+Handle:
+
+loading while sending
+disabled send button during request
+success toast/snackbar
+error toast/snackbar
+loading skeleton/spinner for history
+empty state when no messages exist
+Validation rules
+Backend
+user must exist
+user must have a valid email
+subject required
+body required
+trim whitespace
+enforce reasonable max lengths:
+subject: e.g. 200–255 chars
+body: based on existing editor/storage norms
+Frontend
+prevent empty send
+show inline validation before submit
+sanitize/normalize rich text if rich editor is used
+Audit / logging notes
+
+At minimum, keep a persistent message log in admin_messages.
+
+Recommended:
+
+store sender admin id and name snapshot
+log send failures to server logs
+optionally store provider message id for troubleshooting
+Edge cases
+User exists but has no email
+SendGrid error/timeout
+Admin closes modal during send
+User deleted/deactivated after modal opened
+Very long message body
+HTML editor content with empty markup like <p><br></p>
+Acceptance criteria
+Admin can send an email to a single user directly from User Management
+Sent email uses the configured support/from address and existing branded template style
+Successful sends create a database record tied to that user
+Admin can open and view paginated message history for a user
+Non-admins cannot access send or history endpoints
+Frontend shows clear loading, success, empty, and error states
+No two-way reply handling is introduced
+No bulk send, attachments, or templates are included
+Relevant files
+api/src/controllers/admin.controller.js
+api/src/services/email.service.js
+api/src/utils/send-grid.util.js
+api/src/utils/email-templates.util.js
+api/src/middlewares/adminPrivilage.middleware.ts
+client/src/pages/UserManagement/index.jsx
+client/src/pages/UserManagement/components
+client/src/API/admin/adminClient.js
+Dependencies
+Existing admin auth and authorization flow
+Existing SendGrid integration
+Existing email template system
+User Management frontend table/actions
+MongoDB model setup conventions
+Suggested implementation order
+Create admin_messages model/schema
+Add backend POST send endpoint
+Add backend GET history endpoint
+Add email template
+Add admin API client methods
+Add compose modal UI
+Add history UI
+Add validation, loading, and success/error states
+Test permission boundaries and pagination
+Nice-to-have, but not required for this ticket
+resend last message
+copy previous subject/body into new compose
+searchable history
+status badge for sent/failed if failure logging is later added

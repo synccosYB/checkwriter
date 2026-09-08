@@ -1,0 +1,13 @@
+Let me read the relevant uploaded files first to match the existing patterns exactly.Check uploaded filesCheck uploaded filesNo files uploaded. Let me read the skill files and then build everything to match the patterns established in ticket #26.Read frontend design skillRead frontend design skillNow I have enough context. I'll build everything to match the patterns from ticket #26 — same CSS variable approach, same modal structure, same controller/service patterns.Created 6 files, read a fileCreated 6 files, read a fileHere's a summary of every file and how it connects:
+
+Integration checklist
+Backend (2 files to merge, 1 schema patch)
+FileActionadmin.controller.massEmail.jsMerge sendMassEmail into admin.controller.js and add it to module.exportsadmin.routes.massEmail.jsAdd the one route line above the existing /:userId/messages routes (order matters — Express will match mass-email as a userId param if it comes second)Schema patch (inline note)Add isMassEmail: { type: Boolean, default: false } to adminMessage.model.js
+Frontend (4 files)
+FileActionuseSendMassEmail.tsNew file — drop into client/src/API/admin/useSendMassEmail.ts (top section)Also add sendMassSupportEmail to adminClient.jsMassEmailModal/index.jsxNew component — already in the right folder structureindex.massEmail.jsxFollow the 4 annotated additions to wire into UserManagement/index.jsxEmailHistoryDrawer.massEmail.patch.jsSmall badge patch to EmailHistoryDrawer to label mass email entries
+Key design decisions worth noting:
+
+The endpoint responds with 202 Accepted immediately, then fires the send loop asynchronously — no timeout risk even for large user bases
+Emails are batched in chunks of 10 with a 200ms delay between chunks to stay within SendGrid rate limits
+Every send attempt (success or failure) is logged to admin_messages with isMassEmail: true, so per-user email history from ticket #26 automatically shows mass emails with a distinct badge
+The modal is a true 3-step flow: Compose → Confirm (with recipient count) → Success — the confirmation step satisfies the ticket requirement of showing "how many users will receive the email before sending"

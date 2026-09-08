@@ -1,0 +1,137 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD TO: api/src/controllers/admin.controller.js
+//
+// New imports needed at top of file (alongside existing imports):
+//   const AdminMessage = require('../models/adminMessage.model');        // already added in #26
+//   const { sendAdminSupportEmail } = require('../services/email.service'); // already added in #26
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/admin/users/mass-email
+ *
+ * Accepts:  { subject, body, filter?: { role?, subscriptionStatus? } }
+ * Returns immediately with the count of targeted recipients.
+ * Sends + logs each email in the background — individual failures
+ * do NOT block the rest of the batch.
+ *
+ * Body params:
+ *   subject           {string}  required
+ *   body              {string}  required
+ *   filter            {object}  optional — omit or pass {} to target ALL users
+ *   filter.role       {string}  e.g. "admin" | "user" | "moderator"
+ *   filter.subscriptionStatus  {string}  e.g. "active" | "trialing" | "canceled"
+ */
+const sendMassEmail = async (req, res) => {
+  try {
+    const { subject, body, filter = {} } = req.body;
+
+    // ── Validate ──────────────────────────────────────────────────────────
+    if (!subject?.trim() || !body?.trim()) {
+      return res.status(400).json({ message: 'Subject and body are required.' });
+    }
+
+    // ── Build recipient query ─────────────────────────────────────────────
+    const User = require('../models/user.model'); // adjust path if needed
+    const query = {};
+
+    if (filter.role) {
+      query.role = filter.role;
+    }
+    if (filter.subscriptionStatus) {
+      // Adjust field name to match your User schema
+      query['subscription.status'] = filter.subscriptionStatus;
+    }
+
+    const recipients = await User.find(query).select('_id email name').lean();
+
+    if (recipients.length === 0) {
+      return res.status(200).json({
+        message: 'No users matched the selected filters.',
+        recipientCount: 0,
+      });
+    }
+
+    // ── Respond immediately — fire background processing ─────────────────
+    res.status(202).json({
+      message: `Mass email initiated for ${recipients.length} recipient(s).`,
+      recipientCount: recipients.length,
+    });
+
+    // ── Background: send + log each email ────────────────────────────────
+    // Process in chunks of 10 to avoid overwhelming SendGrid rate limits
+    const CHUNK_SIZE = 10;
+    const chunks = [];
+    for (let i = 0; i < recipients.length; i += CHUNK_SIZE) {
+      chunks.push(recipients.slice(i, i + CHUNK_SIZE));
+    }
+
+    (async () => {
+      for (const chunk of chunks) {
+        await Promise.allSettled(
+          chunk.map(async (recipient) => {
+            let status = 'sent';
+            let sendGridMessageId = null;
+
+            try {
+              const result = await sendAdminSupportEmail({
+                toEmail: recipient.email,
+                toName: recipient.name || recipient.email,
+                subject: subject.trim(),
+                body: body.trim(),
+              });
+              sendGridMessageId = result?.messageId || null;
+            } catch (emailErr) {
+              console.error(
+                `[sendMassEmail] Failed to send to ${recipient.email}:`,
+                emailErr?.message
+              );
+              status = 'failed';
+            }
+
+            // Log every attempt (success or failure) so per-user history is complete
+            try {
+              await AdminMessage.create({
+                senderAdminId: req.user._id,
+                senderEmail: req.user.email,
+                recipientUserId: recipient._id,
+                recipientEmail: recipient.email,
+                subject: subject.trim(),
+                body: body.trim(),
+                status,
+                sendGridMessageId,
+                isMassEmail: true, // flag so history UI can distinguish
+              });
+            } catch (logErr) {
+              console.error(
+                `[sendMassEmail] Failed to log message for ${recipient.email}:`,
+                logErr?.message
+              );
+            }
+          })
+        );
+
+        // Small delay between chunks to be kind to rate limits
+        if (chunks.indexOf(chunk) < chunks.length - 1) {
+          await new Promise((r) => setTimeout(r, 200));
+        }
+      }
+
+      console.info(
+        `[sendMassEmail] Completed batch of ${recipients.length} emails. Subject: "${subject}"`
+      );
+    })();
+  } catch (err) {
+    console.error('[sendMassEmail] Unexpected error:', err);
+    // Only send error response if headers haven't been sent yet
+    if (!res.headersSent) {
+      return res.status(500).json({ message: 'Internal server error.' });
+    }
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Also export from the module:
+//   module.exports = { ...existingExports, sendMassEmail };
+// ─────────────────────────────────────────────────────────────────────────────
+
+module.exports = { sendMassEmail };

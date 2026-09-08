@@ -1,0 +1,493 @@
+Here’s the developer-ready version of #23 — Auth Pages Redesign in the same format.
+
+#23 — Auth Pages Redesign
+
+Objective
+
+Redesign all authentication-related pages in the Synccos Check Writer app so they fully match the new corporate/professional design system and feel like a polished premium fintech sign-in experience.
+
+This task is focused on the full authentication surface area: login, registration, password reset, verification, MFA, profile completion, organization creation, and related public/legal pages.
+
+What & Why
+
+The current auth experience appears to rely on basic Bootstrap-style form presentation with a static banner treatment and inconsistent visual hierarchy. Even if the flows work, they do not yet communicate the level of professionalism, trust, and product maturity expected from a financial application.
+
+Authentication is one of the most important trust touchpoints in the product. It should feel:
+
+secure
+clean
+premium
+modern
+professional
+easy to understand
+visually calm
+
+The redesign should align auth pages to the new brand system established in the layout/theme overhaul:
+
+navy/slate professional palette
+warm accent highlights
+clean white form surfaces
+strong typography hierarchy
+refined spacing
+modern card-based form design
+polished CTA hierarchy
+responsive layout behavior
+
+This is a visual redesign only. Existing auth flows, validation, submission behavior, and API connections must remain unchanged.
+
+Dependency
+
+This task depends on completion of:
+
+#22 — Design System & Layout Overhaul
+
+All auth page redesign work should use:
+
+the centralized MUI theme
+shared form styling
+shared button/input/dialog patterns
+the redesigned auth layout shell
+Done Looks Like
+Login Page
+Clean card-based login form on a white panel
+Strong page heading and supporting text
+Email/password fields use the new shared input styling
+Primary CTA button is prominent and aligned with the new brand
+Google/Apple sign-in buttons, if already present, are styled consistently with the rest of the auth system
+“Remember Me” and “Forgot Password” are properly aligned and spaced
+Layout feels like a premium SaaS/fintech login screen
+Sign Up Page
+Matches the login experience visually
+Registration fields are grouped cleanly
+Terms checkbox is styled properly
+Password strength indicator, if already present, is visually integrated and polished
+Clear hierarchy between form sections and actions
+Forgot Password Page
+Simple centered or auth-shell card layout
+Clear instructional copy
+Email input and submit action are easy to scan
+No clutter
+New Password / Reset Page
+Matching auth card layout
+Password fields are grouped clearly
+Validation feedback looks polished and theme-aligned
+OTP Verification Page
+Verification code UI looks clean and intentional
+Instructions are prominent and clear
+Input boxes or code entry UI feel premium and accessible
+Resend/help states remain visually consistent
+MFA Page
+MFA setup and/or verification page matches the rest of the auth flow
+Security/trust messaging feels professional
+Layout handles codes, QR, instructions, or confirmation areas cleanly
+Complete Profile / Create Profile Pages
+Professional form layout
+Grouped fields
+Strong section spacing
+Multi-step or long-form layouts feel manageable and polished
+Create Organization Page
+Clean field grouping
+Better structure and hierarchy
+Continues the same auth onboarding visual system
+Terms and Privacy Pages
+Readable content layout
+Proper typography hierarchy
+Good width control and spacing for long legal content
+Branded but restrained presentation
+Demo Landing Page
+Professional and inviting
+Encourages trial/demo usage without feeling like a generic landing page
+Matches the product brand visually
+Responsive
+All auth/public pages are responsive
+Mobile layouts are usable and clean
+Card/panel layouts stack gracefully
+Preservation
+All current auth logic remains unchanged
+No API changes
+No route changes
+No provider changes
+No new auth features added
+Out of Scope
+Changes to authentication logic
+API or backend changes
+New SSO/auth providers
+New MFA/auth functionality
+Dashboard/admin page redesign
+Rewriting auth architecture
+Business logic changes
+Design Goals
+1. Trust First
+
+These pages should immediately communicate:
+
+security
+professionalism
+clarity
+product maturity
+
+Avoid anything that feels:
+
+playful
+generic
+overly colorful
+cluttered
+template-like
+2. One Auth System
+
+All auth-related pages should feel like part of one cohesive family.
+
+That means consistency across:
+
+card treatment
+button hierarchy
+form spacing
+labels/helper text
+headings/subheadings
+legal/support links
+secondary actions
+3. Clear Action Hierarchy
+
+Each auth page should make the primary next step obvious.
+
+Examples:
+
+Login → Sign in
+Sign Up → Create account
+Forgot Password → Send reset link
+OTP → Verify code
+New Password → Set new password
+
+Secondary links/actions should remain visible, but not compete visually with the primary CTA.
+
+4. Premium Fintech Tone
+
+The auth experience should feel closer to:
+
+Mercury
+Bill.com
+Ramp
+modern banking SaaS
+than a default admin template.
+
+That means:
+
+generous whitespace
+clean cards/panels
+strong typography
+restrained color usage
+subtle shadows
+thoughtful spacing
+polished form treatment
+Visual Direction
+Auth Layout Structure
+
+Use the redesigned AuthLayout as the base shell for all relevant auth pages.
+
+Recommended Pattern
+
+A split-screen or premium single-panel auth layout depending on the page:
+
+Left panel: branded visual area with navy gradient/brand message/illustration/pattern
+Right panel: clean white form panel or centered auth card
+
+For simple reset/verification/legal pages, a simplified centered card variant may also be used if that is cleaner and still consistent.
+
+Left Panel Direction
+navy/slate gradient or brand visual treatment
+white text
+subtle geometric pattern or overlay
+concise trust/value messaging
+product branding/logo placement
+
+This should feel professional and established, not decorative for its own sake.
+
+Right Panel Direction
+white or subtle neutral surface
+centered form card or structured form container
+strong title and supporting copy
+consistent input/button spacing
+clear helper/error states
+Implementation Plan
+1. Auth Layout Foundation
+Goal
+
+Update client/src/components/Layout/AuthLayout.jsx so it becomes the shared shell for the entire auth/public onboarding experience.
+
+Requirements
+Branded left-side panel or equivalent premium visual treatment
+Clean right-side form area
+Responsive stacking behavior
+Shared spacing rules for auth content
+Clear width constraints for cards/forms
+Consistent placement for logo/product mark
+Support both:
+standard auth form pages
+longer onboarding forms
+simple legal/content pages where appropriate
+Acceptance
+AuthLayout can be reused across all auth pages
+Pages feel related even when content differs
+Mobile behavior remains clean and readable
+2. Login Page Redesign
+Goal
+
+Make the login page feel like a premium fintech sign-in screen.
+
+Requirements
+Strong title and supporting subtext
+Email and password fields use new shared inputs
+Primary sign-in button uses new theme button system
+Google/Apple buttons, if already present, visually match the rest of the form
+“Remember Me” checkbox aligns with system styling
+“Forgot Password” link placement is clean and intentional
+Optional divider between email/password login and social login is polished
+Preserve all current form behavior, validation, and submission logic
+Acceptance
+Login looks premium and trustworthy
+No auth behavior changes
+Social/provider buttons remain functional exactly as before
+3. Sign Up Page Redesign
+Goal
+
+Make registration feel polished and structured.
+
+Requirements
+Match login visual language
+Registration form fields grouped clearly
+Consistent spacing between field groups
+Terms/privacy checkbox styled cleanly
+Password helper text or strength UI, if already present, is visually integrated
+Primary account creation CTA is clear
+Existing validations and field logic remain unchanged
+Acceptance
+Sign Up feels like part of the same auth family as Login
+No registration logic changes
+4. Forgot Password and New Password Pages Redesign
+Goal
+
+Create simple, professional recovery screens.
+
+Requirements
+Use centered or auth-shell card layout
+Clear instructional copy at top
+Inputs and buttons use shared auth styling
+Password reset validation states are visually clean
+No unnecessary extra UI
+Preserve all current behavior
+Acceptance
+Reset flow feels polished and easy to use
+No changes to token/API/submission logic
+5. OTP Verification Page Redesign
+Goal
+
+Make code verification feel clear, modern, and intentional.
+
+Requirements
+Clear instruction block at top
+Premium code input UI
+Strong spacing around verification controls
+Resend code/help text aligned cleanly
+Error and success states feel integrated with the theme
+Preserve all verification behavior
+Acceptance
+OTP page feels purpose-built and modern
+Existing verification flow works exactly as before
+6. MFA Page Redesign
+Goal
+
+Modernize MFA setup/verification presentation.
+
+Requirements
+Use same auth shell and form system
+Clean layout for setup instructions and verification entry
+If QR/setup content exists, it should be presented in a clean card/group
+Security/trust cues should be visually clear but restrained
+Preserve all existing MFA logic
+Acceptance
+MFA page looks consistent with the rest of the auth experience
+No behavior changes
+7. Complete Profile / Create Profile / Create Organization Redesign
+Goal
+
+Improve the onboarding continuation flows after sign-in/signup.
+
+Requirements
+Group related fields into clear sections
+Strong visual separation between sections
+Better handling for longer forms
+Shared card or section patterns for structured onboarding
+Good spacing for labels, help text, and validation
+Maintain all current field behavior and submission logic
+For Create Organization
+Fields should be grouped logically
+Organization-specific inputs should feel structured and easy to scan
+Actions should be clear and not visually crowded
+Acceptance
+Long onboarding pages feel more manageable
+No changes to profile/org creation logic
+8. Terms and Privacy Pages Redesign
+Goal
+
+Make legal content readable and professionally presented.
+
+Requirements
+Clean top-level page header
+Proper readable content width
+Good typography hierarchy for sections/subsections
+Comfortable spacing between paragraphs/lists/headings
+Theme-aligned but restrained styling
+Preserve all existing content and navigation
+Acceptance
+Legal pages no longer feel like raw text dumps
+Readability is significantly improved
+9. Demo Landing Page Redesign
+Goal
+
+Make the demo landing page feel inviting and aligned with the new brand.
+
+Requirements
+Professional layout with strong headline hierarchy
+Clear trial/demo CTA placement
+Visual tone matches auth/public brand system
+Should feel like part of the same product family as login/signup
+Preserve any current actions, forms, or routing behavior
+Acceptance
+Demo page feels purposeful and polished
+No functionality changes
+Relevant Files
+client/src/pages/Login.jsx
+client/src/pages/SignUp.jsx
+client/src/pages/AdminForgetPassword.jsx
+client/src/pages/NewPassword.jsx
+client/src/pages/OTPVerify.jsx
+client/src/pages/Mfa.jsx
+client/src/pages/CompleteProfile.jsx
+client/src/pages/CreateOrganization.jsx
+client/src/pages/Terms.jsx
+client/src/pages/Privacy.jsx
+client/src/pages/DemoLanding.jsx
+client/src/pages/CreateProfile.jsx
+client/src/components/Layout/AuthLayout.jsx
+Shared Component Areas to Review
+
+To avoid repeating auth styles page-by-page, review and align any shared pieces used inside auth flows:
+
+shared input components
+shared button components
+checkbox styling
+form error/helper text patterns
+card wrappers
+auth page header block
+social sign-in button wrappers
+OTP/code input components if shared
+step/progress indicators if used in profile/org flows
+Technical Guidance for Developer
+Preserve Functionality
+No API changes
+No auth provider changes
+No route changes
+No validation logic changes
+No submission logic changes
+No state flow changes unless needed purely for presentation cleanup
+Styling Approach
+
+Use:
+
+centralized MUI theme
+redesigned AuthLayout
+shared form primitives
+standardized buttons/inputs/cards
+minimal scoped CSS only where needed
+
+Avoid:
+
+reintroducing Bootstrap-looking form styling
+hardcoded per-page colors
+duplicated auth styling logic across pages
+visual inconsistency between different auth flows
+Consistency Rule
+
+All pages in auth/onboarding/legal/public auth-adjacent flows should look like they belong to the same entry system.
+
+That includes:
+
+login
+signup
+password reset
+OTP/MFA
+onboarding/profile creation
+organization creation
+demo landing
+terms/privacy
+Acceptance Criteria
+A. General
+ All listed auth-related pages are visually redesigned
+ All pages match the new corporate/professional design system
+ All pages are fully responsive
+ All existing auth/onboarding functionality remains unchanged
+B. Login / Signup
+ Login page is redesigned with premium card-based form
+ Sign Up page matches the same system
+ Social login buttons, if present, are visually aligned
+ Remember Me / Forgot Password / Terms links are spaced and styled correctly
+C. Password Recovery / Verification
+ Forgot Password page is redesigned
+ New Password page is redesigned
+ OTP Verification page is redesigned
+ MFA page is redesigned
+ Validation and feedback states are visually polished
+D. Onboarding Forms
+ Complete Profile page is redesigned
+ Create Profile page is redesigned
+ Create Organization page is redesigned
+ Long forms use clean grouping and spacing
+E. Legal / Public Pages
+ Terms page is redesigned for readability
+ Privacy page is redesigned for readability
+ Demo Landing page is redesigned and brand-aligned
+F. Functional Safety
+ No auth logic changes
+ No API changes
+ No broken providers
+ No broken validation
+ No broken links
+ No broken submission flows
+ No broken responsive layouts
+QA Checklist
+Visual QA
+ Login through onboarding pages feel like one cohesive auth system
+ Typography, spacing, and button hierarchy are consistent
+ Inputs, cards, and links use the shared design language
+ The new brand palette is present but restrained
+ The pages feel trustworthy and premium
+Responsive QA
+ Login and signup work cleanly on mobile widths
+ Card widths and padding scale appropriately
+ Long forms remain readable on smaller screens
+ OTP/MFA layouts do not break on smaller devices
+ Legal pages remain readable on mobile and desktop
+Regression QA
+ Login still works exactly as before
+ Sign Up still works exactly as before
+ Forgot Password flow still works exactly as before
+ New Password flow still works exactly as before
+ OTP verification still works exactly as before
+ MFA still works exactly as before
+ Complete/Create Profile flows still work exactly as before
+ Create Organization still works exactly as before
+ Terms/Privacy/Demo pages still route correctly
+Suggested Execution Order
+Finalize shared AuthLayout
+Redesign Login page
+Redesign Sign Up page
+Redesign Forgot Password and New Password pages
+Redesign OTP and MFA pages
+Redesign Complete Profile / Create Profile / Create Organization pages
+Redesign Terms and Privacy pages
+Redesign Demo Landing page
+Run responsive pass
+Run regression pass across all auth flows
+Definition of Success
+
+When this task is complete, the entire authentication and onboarding experience should feel like the front door to a serious, polished fintech product. A user should be able to go from landing page, to sign up, to verification, to profile/org setup, and every step should feel visually consistent, trustworthy, and professionally designed — without changing how the system works.

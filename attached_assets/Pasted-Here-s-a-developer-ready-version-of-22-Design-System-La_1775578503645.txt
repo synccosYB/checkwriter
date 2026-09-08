@@ -1,0 +1,591 @@
+Here’s a developer-ready version of #22 — Design System & Layout Overhaul for the Synccos Check Writer app.
+
+#22 — Design System & Layout Overhaul
+
+Objective
+
+Create and apply a centralized corporate-grade design system for the Synccos Check Writer web app, then use that system to restyle all shared layouts and reusable UI primitives without changing application logic.
+
+This is a visual foundation task. It should establish a polished, consistent, professional fintech identity across the app so that all later page-level redesigns can build on top of it.
+
+What & Why
+
+The current UI is visually inconsistent. It mixes:
+
+Bootstrap utility styling
+inline MUI styles
+legacy CSS files
+inconsistent spacing, radii, shadows, and typography
+older green/teal colors that do not reflect a strong financial/corporate brand
+
+This task replaces that fragmented styling approach with a single theme-driven design system inspired by modern corporate fintech dashboards like QuickBooks, Bill.com, Mercury, and similar B2B SaaS tools.
+
+The new direction should feel:
+
+trustworthy
+corporate
+premium
+modern
+spacious
+clear
+efficient
+
+The desired visual language is:
+
+navy / slate blue primary brand
+warm amber accent
+cool gray application backgrounds
+white cards and surfaces
+sharp typography hierarchy using Inter
+subtle depth via shadows, not heavy borders
+refined, calm UI rather than loud or playful
+Core Design Principles
+Theme first
+Styling should come primarily from a centralized MUI theme, not scattered CSS overrides or inline sx patches.
+Shared layouts first
+Focus on layout shell and shared components before touching individual pages.
+Professional fintech tone
+The app should feel like a serious financial workspace, not a generic admin panel.
+Consistency over one-off styling
+Buttons, cards, drawers, inputs, tables, modals, and navigation should all follow the same visual system.
+No logic changes
+Existing features, data flow, role behavior, routing, API calls, and component logic must remain intact.
+Done Looks Like
+Theme / Design Tokens
+A centralized MUI theme file exists and is used app-wide
+Theme contains:
+full color palette
+typography scale
+spacing conventions
+shadow definitions
+border radius system
+z-index/layering consistency
+reusable component overrides
+Inter is the standardized app font
+Brand Palette
+Primary brand color is navy/slate blue in the #1e3a5f family
+Accent color is warm amber/gold in the #e8a838 family
+Backgrounds use cool grays like #f5f7fa and #eef1f5
+Cards and elevated surfaces are white
+Main text uses deep dark ink tone like #1a1a2e
+Sidebar
+Redesigned with clean white background
+Better visual grouping of nav sections
+Active state is clear but subtle
+Hover states are refined
+Logo area looks professional and aligned
+Collapse/expand behavior animates smoothly
+No functionality or route changes
+Header / Top Bar
+Redesigned top bar with cleaner hierarchy
+Organization selector feels polished and theme-aligned
+Notification area is visually cleaner
+Profile/avatar menu is standardized
+Header spacing and elevation feel premium
+Auth Layout
+Login/auth screens use a modern split-screen layout
+Left side: branded panel with navy gradient or approved branded visual treatment
+Right side: clean form surface with strong spacing and typographic hierarchy
+Existing auth functionality remains unchanged
+Shared Components
+Buttons standardized into theme variants
+Inputs and form controls visually unified
+Dialogs and modals follow same radii, spacing, shadows
+Data tables / MUI DataGrid align with theme
+Alerts/snackbars feel branded
+Progress/loading states feel integrated
+Signature pad and shared widgets visually match the rest of the system
+CSS Cleanup
+Legacy CSS conflicts removed
+Global styles simplified
+Theme takes precedence over arbitrary CSS
+Unused or obsolete style rules removed where safe
+Footer
+Footer matches new branding and typography
+Better spacing and visual polish
+Preservation
+Existing functionality is preserved completely
+No behavioral regressions
+No backend or API changes
+Out of Scope
+Redesigning individual feature pages
+Adding new functionality
+Backend changes
+Mobile / Capacitor styling
+Reworking business logic
+Rewriting application architecture
+Migrating all styling away from CSS entirely if some page-specific CSS still remains necessary
+Design Direction / Token Guidance
+Proposed Brand Tokens
+Primary Palette
+primary.main: #1f3b63
+primary.dark: #162c4a
+primary.light: #31527f
+Accent Palette
+secondary.main: #e8a838
+secondary.dark: #c98e24
+secondary.light: #f1c46d
+Neutrals / Surfaces
+background.default: #f5f7fa
+background.paper: #ffffff
+surface.subtle: #eef1f5
+divider: #d9e0e8
+Text
+text.primary: #1a1a2e
+text.secondary: #5b6472
+text.disabled: #96a0ad
+States
+Success: muted professional green
+Warning: warm amber family
+Error: clear but not oversaturated red
+Info: slate/blue info tone aligned with primary
+Typography
+
+Use Inter across the application.
+
+Suggested hierarchy:
+
+H1: 32 / 700
+H2: 28 / 700
+H3: 24 / 700
+H4: 20 / 700
+H5: 18 / 600
+H6: 16 / 600
+Subtitle 1: 16 / 600
+Subtitle 2: 14 / 600
+Body 1: 14 / 400
+Body 2: 13 / 400
+Button: 14 / 600
+Caption: 12 / 400
+
+Use tighter, more intentional heading hierarchy than today. Headings should feel strong and business-like.
+
+Shape / Spacing
+Global border radius base: 10–12px
+Cards/dialogs: 14–16px
+Buttons: 10–12px
+Inputs: 10–12px
+Sidebar item radius: 10px
+Layout padding should feel generous and consistent
+Shadows
+
+Use soft layered shadows, not harsh box borders.
+
+Suggested direction:
+
+Cards: soft shadow, low spread
+Header/sidebar: subtle separation
+Modals/dialogs: more pronounced elevation
+Avoid thick outlines unless for focus state/accessibility
+Implementation Plan
+1. Create Centralized Theme System
+Goal
+
+Introduce a single source of truth for all shared visual styling.
+
+Deliverables
+
+Create or standardize theme structure, for example:
+
+client/src/theme/index.ts
+client/src/theme/palette.ts
+client/src/theme/typography.ts
+client/src/theme/components.ts
+client/src/theme/shadows.ts
+
+If the project prefers a single file, that is acceptable, but it should remain organized and readable.
+
+Requirements
+Wrap app with MUI ThemeProvider
+Ensure CssBaseline is applied centrally
+Import Inter font globally
+Add component overrides for:
+MuiButton
+MuiTextField
+MuiOutlinedInput
+MuiInputLabel
+MuiCard
+MuiPaper
+MuiChip
+MuiDialog
+MuiDrawer
+MuiAppBar
+MuiMenu
+MuiMenuItem
+MuiTooltip
+MuiTabs
+MuiTab
+MuiDataGrid if used through MUI X
+MuiSnackbarContent
+MuiAlert
+MuiSelect
+MuiTableCell
+MuiTableRow
+MuiDivider
+MuiAvatar
+MuiIconButton
+Acceptance
+Theme file is actually used throughout shared layouts
+Most shared appearance is driven by theme overrides, not per-file style hacks
+Colors, typography, radii, shadows, and spacing are visibly consistent
+2. App Shell / Layout Foundation
+2.1 App Layout
+Goal
+
+Make the base layout feel premium and consistent.
+
+Requirements
+Main app background uses light cool gray
+Content area uses consistent padding and width behavior
+Cards and internal panels sit clearly on the background
+Remove visual clutter from layout wrappers
+Ensure sidebar/header/content relationships feel intentional
+Acceptance
+Entering any authenticated page immediately reflects the new brand system
+Layout spacing and surface treatment feel cohesive
+2.2 Sidebar Redesign
+Goal
+
+Turn the sidebar into a polished professional nav rail.
+
+Requirements
+White or lightly tinted surface
+Proper logo/header section at top
+Clean nav item rows with:
+icon
+label
+optional active indicator
+Hover state is subtle
+Active state uses soft navy highlight or left marker
+Section dividers/headings are cleaner and more restrained
+Collapse animation is smooth
+Reduced visual heaviness versus current version
+Preserve all nav logic, permissions, links, and expand/collapse behavior
+UX Notes
+Avoid overly dark sidebar unless brand requires it; white sidebar with navy text usually matches this direction best
+Active item can use soft tinted background rather than loud fill
+Keep icons aligned and same visual weight
+Acceptance
+Sidebar feels cleaner and more executive/professional
+No routes or click behavior change
+Collapsed mode still looks intentional, not squashed
+2.3 Header Redesign
+Goal
+
+Create a minimal top bar that feels modern and enterprise-ready.
+
+Requirements
+Slim, clean top bar
+Better spacing between controls
+Organization selector styled consistently with theme
+Notifications styled cleanly, not noisy
+Profile/avatar/menu polished and aligned
+Avoid excessive borders and visual clutter
+Preserve dropdown logic and actions
+Acceptance
+Header feels lighter and more premium
+Existing functionality remains intact
+Controls are aligned and consistent with new design system
+2.4 Footer Redesign
+Goal
+
+Bring footer into brand alignment.
+
+Requirements
+Use refined typography and spacing
+Match colors to new system
+Remove any outdated visual styling
+Preserve current content/functionality unless content is already intentionally minimal
+Acceptance
+Footer no longer feels like a leftover legacy element
+It visually belongs to the same product
+3. Auth Layout Redesign
+Goal
+
+Modernize login/authentication screens into a premium fintech split layout.
+
+Requirements
+Two-panel auth screen
+Left branded panel:
+navy gradient or strong solid brand treatment
+white text
+subtle pattern, illustration, or overlay
+optional value messaging like security/trust/productivity
+Right panel:
+white or very light surface
+centered auth form container
+strong typographic hierarchy
+generous whitespace
+Responsive behavior should still work without breaking auth flows
+Existing forms, validation, submission, and routing remain unchanged
+Visual Direction
+
+The left panel should feel like:
+
+secure
+established
+modern
+corporate
+not playful, cartoonish, or startup-gimmicky
+Acceptance
+Auth pages look fully rebranded
+No functionality regressions
+Layout feels like a polished SaaS login experience
+4. Shared Component Standardization
+4.1 Buttons
+Goal
+
+All buttons across shared components use consistent structure and styling.
+
+Required Variants
+Primary: navy filled
+Secondary: outlined or subtle neutral
+Danger: red-toned
+Optional tertiary/text button: minimal
+Requirements
+Consistent height
+Consistent border radius
+Better text weight
+Clear disabled states
+Clear hover/active/focus states
+ButtonComponent should be updated to map to the new visual system
+Acceptance
+Buttons across layouts and shared forms look unified
+No existing actions break
+4.2 Inputs / Forms
+Goal
+
+Make all inputs visually cohesive.
+
+Requirements
+Standardize:
+text inputs
+selects
+date controls where MUI-based
+multi-line textareas
+checkboxes/radios/switches if shared
+Inputs should have:
+white surface
+softer borders
+stronger focus ring
+consistent padding
+consistent label treatment
+Remove legacy mismatched Bootstrap/MUI visual conflicts
+Acceptance
+Shared forms no longer feel mixed between multiple UI systems
+Focus, error, helper text, disabled states are consistent
+4.3 Cards / Panels
+Goal
+
+All cards feel like part of one system.
+
+Requirements
+White background
+softer shadow
+reduced border noise
+consistent padding
+consistent title/content spacing
+standard radii
+Acceptance
+Dashboard sections and shared containers feel uniform even before page-level redesign
+4.4 Dialogs / Modals
+Goal
+
+Modernize shared modal treatment.
+
+Requirements
+Apply theme-based paper radius, shadow, padding
+Improve title/content/action spacing
+Buttons aligned to system
+Preserve modal logic and existing behavior
+Update FormModalMUI and any shared modal wrappers
+Acceptance
+Modals feel premium and not like default MUI/legacy mix
+4.5 Alerts / Snackbar / Status UI
+Goal
+
+Align status messaging with brand tone.
+
+Requirements
+Standardized background, icon, padding, border radius
+Less jarring color treatment
+Maintain clear semantic meaning
+Ensure toast/snackbar components reflect theme
+Acceptance
+Notifications look integrated into the system rather than third-party defaults
+4.6 Data Table / DataGrid Styling
+Goal
+
+Restyle all shared table presentation for professional readability.
+
+Requirements
+Header row should feel deliberate and clean
+Row hover subtle
+Better spacing in cells
+Softer separators
+Selected state aligned with theme
+Pagination / toolbar / filters styled consistently if shared
+No data behavior changes
+Acceptance
+Tables feel like business software, not a default component library
+4.7 Progress / Loaders / Misc Shared Widgets
+Goal
+
+Bring all common feedback widgets into theme alignment.
+
+Includes
+loading bars / circular loaders
+progress indicators
+signature pad wrapper styling
+empty state wrappers if shared
+section tabs if shared
+Acceptance
+All shared components visually belong together
+5. CSS Cleanup and Legacy Style Removal
+Goal
+
+Remove conflicting legacy styles and reduce CSS fighting.
+
+Files to review
+client/src/App.css
+client/src/index.css
+client/src/components/Layout/Layout.css
+client/src/styles/ContentPageStyles.css
+client/src/styles/CompanyFormStyles.css
+client/src/styles/IntegrationsStyle.css
+Requirements
+Remove unused or obsolete class rules where safe
+Remove global overrides that conflict with MUI theme
+Reduce heavy specificity chains
+Keep only CSS that is still truly needed for layout/page-specific behavior
+Ensure base body/html/app-root styles support new design system
+Standardize scrollbars only if already being styled consistently and subtly
+Important
+
+Do not delete CSS blindly. Remove only what is clearly obsolete or conflicting.
+
+Acceptance
+Theme-driven approach now controls the visual foundation
+CSS conflicts are materially reduced
+No regression from removing required legacy rules
+Relevant Files
+client/src/App.tsx
+client/src/App.css
+client/src/index.css
+client/src/components/Layout/AppLayout.jsx
+client/src/components/Layout/AuthLayout.jsx
+client/src/components/Layout/DashboardLayout.jsx
+client/src/components/Layout/Sidebar.jsx
+client/src/components/Layout/Header
+client/src/components/Layout/Footer
+client/src/components/Layout/Layout.css
+client/src/components/Layout/FormTabLayout.jsx
+client/src/styles/ContentPageStyles.css
+client/src/styles/CompanyFormStyles.css
+client/src/styles/IntegrationsStyle.css
+client/src/components/buttons
+client/src/components/inputs
+client/src/components/dialog
+client/src/components/shared
+Suggested File Additions / Refactor Targets
+
+These are suggestions, not mandatory exact paths.
+
+client/src/theme/index.ts
+client/src/theme/palette.ts
+client/src/theme/typography.ts
+client/src/theme/shadows.ts
+client/src/theme/componentOverrides.ts
+client/src/theme/globalStyles.ts
+
+If preferred, these can also be composed from fewer files.
+
+Technical Notes for Developer
+Preserve Logic
+No route changes
+No permission changes
+No API changes
+No state management rewrites unless needed for visual cleanup only
+No business logic edits
+Styling Strategy
+
+Preferred order of styling authority:
+
+centralized MUI theme
+reusable shared styled wrappers / component-level styling
+scoped CSS for layout/page exceptions
+last-resort inline styling only where unavoidable
+Avoid
+introducing another styling system
+deep one-off overrides across many files
+hardcoding colors repeatedly in components
+mixing old Bootstrap look with new theme look
+changing layout behavior that users rely on
+Acceptance Criteria
+A. Theme Foundation
+ App is wrapped in a centralized MUI theme
+ Inter font is loaded and consistently used
+ Theme contains palette, typography, shadows, spacing, shape, and component overrides
+ Shared MUI components visibly use new brand styling
+B. Sidebar
+ Sidebar matches new corporate fintech visual direction
+ Active and hover states are refined
+ Collapse animation remains smooth
+ All existing navigation behavior is preserved
+C. Header
+ Header/top bar is redesigned and theme-aligned
+ Organization selector, profile menu, and notifications are visually polished
+ Existing behavior remains intact
+D. Auth Layout
+ Auth screens use modern split-screen layout
+ Left branded panel and right clean form panel are implemented
+ Existing login/auth functionality is unchanged
+E. Shared Components
+ Buttons are standardized
+ Inputs/forms are standardized
+ Dialogs/modals are standardized
+ Tables/DataGrid are standardized
+ Alerts/snackbars/loaders are standardized
+F. CSS Cleanup
+ Legacy conflicting global CSS is reduced
+ Theme is the primary styling authority
+ No visible regressions caused by CSS cleanup
+G. Functional Safety
+ No backend changes
+ No feature changes
+ No broken routes
+ No broken permissions
+ No broken forms
+ No broken dialogs/tables/navigation
+QA Checklist
+Visual QA
+ Sidebar, header, footer, auth layout, and shared components feel like one product
+ Color palette is consistently applied
+ Typography hierarchy is clear
+ Shadows/radii/spacing are consistent
+ There are no obvious leftovers from old green/teal branding in shared layout areas
+Regression QA
+ Navigation still works
+ Sidebar collapse still works
+ Header menus still work
+ Auth forms still submit correctly
+ Modals still open/close correctly
+ Shared buttons/inputs still behave correctly
+ Tables still sort/filter/paginate as before
+Cross-App Shell QA
+ Dashboard pages render correctly inside the new shell
+ Forms pages render correctly inside the new shell
+ Dialog-based workflows still render correctly
+ No layout overflow or spacing collapse in common shared views
+Suggested Execution Order
+Build centralized theme and global app wrapper
+Clean global CSS conflicts
+Redesign sidebar shell
+Redesign header shell
+Redesign footer
+Redesign auth layout
+Update shared buttons/inputs/dialogs/tables/alerts
+Run regression pass on existing pages using the new shell
+Definition of Success
+
+When this task is complete, the Check Writer app should already feel substantially rebranded and more premium even before individual feature pages are redesigned. A user should be able to log in, navigate the shell, open forms/modals, and use shared components and immediately feel that the product is now a serious, polished corporate fintech platform.

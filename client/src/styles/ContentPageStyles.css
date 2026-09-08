@@ -1,0 +1,24 @@
+h6.highlight-subheder {
+        color: #31527f;
+        margin-bottom: 1rem;
+}
+
+h1.large-header {
+        font-size: 6rem;
+        color: #1a1a2e;
+        margin-bottom: 5rem;
+}
+
+.terms-content {
+        font-size: 14px;
+        color: #000;
+}
+
+.terms-content.txt {
+        margin-bottom: 3rem;
+}
+
+.terms-content.point {
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+}

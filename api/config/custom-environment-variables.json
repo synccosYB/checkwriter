@@ -1,0 +1,20 @@
+{
+    "frontend_url": "FRONTEND_URL",
+    "s3": {
+        "access_key_id": "R2_ACCESS_KEY_ID",
+        "secret_access_key": "R2_SECRET_ACCESS_KEY",
+        "endpoint_url": "R2_ENDPOINT_URL",
+        "bucket_name": "R2_BUCKET_NAME"
+    },
+    "shippo": {
+        "api_token": "SHIPPO_API_TOKEN"
+    },
+    "zyla": {
+        "api_token": "ZYLA_API_TOKEN"
+    },
+    "stripe_subscription": {
+        "stripe_secret_key": "STRIPE_SECRET_KEY",
+        "stripe_subscription_webhook_endpoint_secret": "STRIPE_SUBSCRIPTION_WEBHOOK_ENDPOINT_SECRET",
+        "checkwriter_product_id": "STRIPE_CHECKWRITER_PRODUCT_ID"
+    }
+}

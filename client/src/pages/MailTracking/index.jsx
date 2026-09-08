@@ -1,0 +1,505 @@
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useParams, useHistory } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  Button,
+  Chip,
+  CircularProgress,
+  Alert,
+  Divider,
+  LinearProgress,
+  Tooltip,
+  IconButton,
+  Paper,
+  Stack,
+  Grid,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import { shippingClient } from "../../API/shipping/shippingClient";
+
+const POLL_INTERVAL_MS = 60_000;
+
+const EVENT_META = {
+  "letter.created":                { label: "Created",              step: 1, color: "default" },
+  "letter.rendered_pdf":           { label: "PDF rendered",         step: 2, color: "default" },
+  "letter.rendered_thumbnails":    { label: "Thumbnails rendered",  step: 2, color: "default" },
+  "letter.billed":                 { label: "Billed & queued",      step: 3, color: "info"    },
+  "letter.in_transit":             { label: "In transit",           step: 4, color: "warning" },
+  "letter.in_local_area":          { label: "In local area",        step: 5, color: "warning" },
+  "letter.processed_for_delivery": { label: "Out for delivery",     step: 6, color: "warning" },
+  "letter.delivered":              { label: "Delivered",            step: 7, color: "success" },
+  "letter.re_routed":              { label: "Re-routed",            step: 4, color: "warning" },
+  "letter.returned_to_sender":     { label: "Returned to sender",   step: 4, color: "error"   },
+  "letter.failed":                 { label: "Failed",               step: 4, color: "error"   },
+};
+
+const TOTAL_STEPS = 7;
+
+const PROGRESS_MILESTONES = [
+  { label: "Created",    step: 1 },
+  { label: "Processed",  step: 3 },
+  { label: "In transit", step: 4 },
+  { label: "Delivered",  step: 7 },
+];
+
+function formatDateTime(dateStr) {
+  if (!dateStr) return "\u2014";
+  return new Date(dateStr).toLocaleString("en-US", {
+    month: "short", day: "numeric", year: "numeric",
+    hour: "2-digit", minute: "2-digit", timeZoneName: "short",
+  });
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "\u2014";
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short", day: "numeric", year: "numeric",
+  });
+}
+
+function getLatestEvent(events = []) {
+  return events[0] ?? null;
+}
+
+function getCurrentStep(events = []) {
+  const latest = getLatestEvent(events);
+  if (!latest) return 0;
+  return EVENT_META[latest.event_type]?.step ?? 1;
+}
+
+function SectionTitle({ children }) {
+  return (
+    <Typography
+      variant="overline"
+      sx={{ color: "text.secondary", letterSpacing: 1.2, display: "block", mb: 1.5 }}
+    >
+      {children}
+    </Typography>
+  );
+}
+
+function DetailRow({ label, value }) {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "baseline",
+        py: 0.75,
+        borderBottom: "1px solid",
+        borderColor: "divider",
+        "&:last-child": { borderBottom: "none" },
+        gap: 2,
+      }}
+    >
+      <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>
+        {label}
+      </Typography>
+      <Typography variant="body2" sx={{ textAlign: "right", wordBreak: "break-all" }}>
+        {value ?? "\u2014"}
+      </Typography>
+    </Box>
+  );
+}
+
+function StatusChip({ eventType }) {
+  const meta = EVENT_META[eventType] ?? { label: eventType, color: "default" };
+  return <Chip label={meta.label} color={meta.color} size="small" />;
+}
+
+function ProgressTracker({ events = [] }) {
+  const currentStep = getCurrentStep(events);
+  const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
+
+  return (
+    <Box>
+      <Box sx={{ position: "relative", mb: 1 }}>
+        <LinearProgress
+          variant="determinate"
+          value={pct}
+          sx={{
+            height: 8,
+            borderRadius: 4,
+            "& .MuiLinearProgress-bar": { borderRadius: 4 },
+          }}
+        />
+        {PROGRESS_MILESTONES.map((m) => {
+          const pos = Math.round((m.step / TOTAL_STEPS) * 100);
+          const reached = currentStep >= m.step;
+          return (
+            <Tooltip key={m.step} title={m.label} placement="top">
+              <Box
+                sx={{
+                  position: "absolute",
+                  left: `${pos}%`,
+                  top: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 14,
+                  height: 14,
+                  borderRadius: "50%",
+                  bgcolor: reached ? "primary.main" : "background.paper",
+                  border: "2px solid",
+                  borderColor: reached ? "primary.main" : "divider",
+                  transition: "all 0.4s ease",
+                  cursor: "default",
+                }}
+              />
+            </Tooltip>
+          );
+        })}
+      </Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 0.5 }}>
+        {PROGRESS_MILESTONES.map((m) => (
+          <Typography
+            key={m.step}
+            variant="caption"
+            sx={{
+              color: currentStep >= m.step ? "text.secondary" : "text.disabled",
+              fontWeight: currentStep >= m.step ? 500 : 400,
+            }}
+          >
+            {m.label}
+          </Typography>
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
+function EventTimeline({ events = [] }) {
+  if (!events.length) {
+    return (
+      <Typography variant="body2" color="text.disabled">
+        No events recorded yet.
+      </Typography>
+    );
+  }
+
+  const sorted = [...events].reverse();
+
+  return (
+    <Stack spacing={0}>
+      {sorted.map((evt, i) => {
+        const meta = EVENT_META[evt.event_type] ?? { label: evt.event_type, color: "default" };
+        const isLast = i === sorted.length - 1;
+        return (
+          <Box key={i} sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                flexShrink: 0,
+                pt: "3px",
+              }}
+            >
+              {isLast ? (
+                <CheckCircleIcon
+                  color={meta.color === "default" ? "disabled" : meta.color}
+                  sx={{ fontSize: 16 }}
+                />
+              ) : (
+                <RadioButtonUncheckedIcon color="disabled" sx={{ fontSize: 16 }} />
+              )}
+              {!isLast && (
+                <Box
+                  sx={{
+                    width: "1px",
+                    flex: 1,
+                    minHeight: 24,
+                    bgcolor: "divider",
+                    my: "2px",
+                  }}
+                />
+              )}
+            </Box>
+            <Box sx={{ pb: 2.5 }}>
+              <Typography
+                variant="body2"
+                sx={{ fontFamily: "monospace", fontWeight: 600, lineHeight: 1.3 }}
+              >
+                {evt.event_type}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {formatDateTime(evt.date_created)}
+              </Typography>
+            </Box>
+          </Box>
+        );
+      })}
+    </Stack>
+  );
+}
+
+function ApiLogs({ logs = [] }) {
+  if (!logs.length) {
+    return (
+      <Typography variant="body2" color="text.disabled">
+        No API logs available.
+      </Typography>
+    );
+  }
+
+  return (
+    <Stack divider={<Divider />} spacing={0}>
+      {logs.map((log, i) => {
+        const statusCode = String(log.response_code ?? log.status ?? "200");
+        return (
+          <Box
+            key={i}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              py: 1,
+              flexWrap: "wrap",
+            }}
+          >
+            <Chip
+              label={statusCode}
+              color={statusCode.startsWith("2") ? "success" : "error"}
+              size="small"
+              sx={{ fontFamily: "monospace", minWidth: 64 }}
+            />
+            <Chip
+              label={log.method ?? "POST"}
+              size="small"
+              variant="outlined"
+              sx={{ fontFamily: "monospace" }}
+            />
+            <Typography variant="body2" sx={{ fontFamily: "monospace", flex: 1 }}>
+              {log.path ?? log.uri ?? "/v1/letters"}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ ml: "auto" }}>
+              {formatDateTime(log.date_created)}
+            </Typography>
+          </Box>
+        );
+      })}
+    </Stack>
+  );
+}
+
+export default function MailTrackingPage() {
+  const { lobId } = useParams();
+  const history = useHistory();
+
+  const [letter, setLetter] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastRefreshed, setLastRefreshed] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const intervalRef = useRef(null);
+
+  const fetchLetter = useCallback(
+    async (isManual = false) => {
+      if (isManual) setRefreshing(true);
+      try {
+        const { data } = await shippingClient.get(`/lob/letter/${lobId}`);
+        setLetter(data);
+        setLastRefreshed(new Date());
+        setError(null);
+      } catch (err) {
+        setError(
+          err?.response?.data?.error ??
+            err?.response?.data?.message ??
+            err?.message ??
+            "Failed to load letter tracking data."
+        );
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [lobId]
+  );
+
+  useEffect(() => {
+    fetchLetter();
+  }, [fetchLetter]);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => fetchLetter(), POLL_INTERVAL_MS);
+    return () => clearInterval(intervalRef.current);
+  }, [fetchLetter]);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error && !letter) {
+    return (
+      <Box sx={{ p: 3, maxWidth: 720, mx: "auto" }}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => history.push("/dashboard/all-orders")}
+          sx={{ mb: 2 }}
+        >
+          Back to All Orders
+        </Button>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
+
+  const events   = letter?.events   ?? [];
+  const metadata = letter?.metadata ?? {};
+  const logs     = letter?.api_logs ?? letter?.logs ?? [];
+  const latestEvent = getLatestEvent(events);
+
+  return (
+    <Box sx={{ p: { xs: 2, md: 3 }, maxWidth: 800, mx: "auto" }}>
+
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
+        <IconButton
+          onClick={() => history.push("/dashboard/all-orders")}
+          size="small"
+        >
+          <ArrowBackIcon fontSize="small" />
+        </IconButton>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="h6" fontWeight={600}>
+            Letter Tracking
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ fontFamily: "monospace" }}>
+            {lobId}
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {lastRefreshed && (
+            <Typography variant="caption" color="text.disabled">
+              Updated {lastRefreshed.toLocaleTimeString()}
+            </Typography>
+          )}
+          <Tooltip title="Refresh">
+            <span>
+              <IconButton
+                size="small"
+                onClick={() => fetchLetter(true)}
+                disabled={refreshing}
+              >
+                {refreshing ? (
+                  <CircularProgress size={16} />
+                ) : (
+                  <RefreshIcon fontSize="small" />
+                )}
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Box>
+      </Box>
+
+      {error && letter && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          Could not refresh: {error}
+        </Alert>
+      )}
+
+      <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: 2.5,
+          }}
+        >
+          <Box>
+            <SectionTitle>Current status</SectionTitle>
+            {latestEvent ? (
+              <StatusChip eventType={latestEvent.event_type} />
+            ) : (
+              <Typography variant="body2" color="text.disabled">
+                No events yet
+              </Typography>
+            )}
+          </Box>
+          <Box sx={{ textAlign: "right" }}>
+            <SectionTitle>Mail type</SectionTitle>
+            <Typography variant="body2">{letter?.mail_type ?? "\u2014"}</Typography>
+          </Box>
+        </Box>
+        <ProgressTracker events={events} />
+      </Paper>
+
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        {[
+          {
+            label: "Send date",
+            value: formatDate(letter?.send_date),
+          },
+          {
+            label: "Expected delivery",
+            value: letter?.expected_delivery_date
+              ? formatDate(letter.expected_delivery_date)
+              : "\u2014",
+          },
+          {
+            label: "Color / duplex",
+            value: `${letter?.color ? "Color" : "B&W"} \u00b7 ${
+              letter?.double_sided ? "Duplex" : "Single-sided"
+            }`,
+          },
+          {
+            label: "Date created",
+            value: formatDateTime(letter?.date_created),
+          },
+        ].map(({ label, value }) => (
+          <Grid item xs={6} sm={3} key={label}>
+            <Paper
+              variant="outlined"
+              sx={{ p: 1.5, height: "100%", bgcolor: "background.default" }}
+            >
+              <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                {label}
+              </Typography>
+              <Typography variant="body2" fontWeight={500}>
+                {value}
+              </Typography>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+        <SectionTitle>Letter details</SectionTitle>
+        <DetailRow label="Extra service"   value={letter?.extra_service || "None"} />
+        <DetailRow label="Template"        value={letter?.template?.id || "None"} />
+        <DetailRow label="Custom envelope" value={letter?.custom_envelope?.id || "None"} />
+        <DetailRow label="QR code URL"     value={letter?.qr_code_url || "N/A"} />
+        <DetailRow label="Pages"           value={letter?.pages} />
+      </Paper>
+
+      {Object.keys(metadata).length > 0 && (
+        <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+          <SectionTitle>Metadata</SectionTitle>
+          {Object.entries(metadata).map(([k, v]) => (
+            <DetailRow key={k} label={k} value={String(v)} />
+          ))}
+        </Paper>
+      )}
+
+      <Paper variant="outlined" sx={{ p: 2.5, mb: 2 }}>
+        <SectionTitle>Tracking events</SectionTitle>
+        <EventTimeline events={events} />
+      </Paper>
+
+      <Paper variant="outlined" sx={{ p: 2.5 }}>
+        <SectionTitle>API request logs</SectionTitle>
+        <ApiLogs logs={logs} />
+      </Paper>
+
+    </Box>
+  );
+}

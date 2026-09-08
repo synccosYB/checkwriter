@@ -1,0 +1,18 @@
+node_modules/
+.env
+db-export/
+.env.local
+.env.development
+.env.production
+.cache/
+*.log
+dist/
+build/
+
+# Capacitor / Mobile
+mobile/ios/App/Pods/
+mobile/ios/.DS_Store
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/android/build/
+

@@ -1,0 +1,28 @@
+Uncaught runtime errors:
+×
+ERROR
+Cannot read properties of undefined (reading '_id')
+TypeError: Cannot read properties of undefined (reading '_id')
+    at https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:441950:17
+    at Array.reduce (<anonymous>)
+    at https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:441949:19
+    at updateMemo (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:249483:23)
+    at Object.useMemo (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:250059:20)
+    at useMemo (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:316743:25)
+    at MyChecks (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:441948:67)
+    at renderWithHooks (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:248694:22)
+    at updateFunctionComponent (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:252261:24)
+    at beginWork (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:253980:20)
+ERROR
+Cannot read properties of undefined (reading '_id')
+TypeError: Cannot read properties of undefined (reading '_id')
+    at https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:441950:17
+    at Array.reduce (<anonymous>)
+    at https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:441949:19
+    at updateMemo (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:249483:23)
+    at Object.useMemo (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:250059:20)
+    at useMemo (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:316743:25)
+    at MyChecks (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:441948:67)
+    at renderWithHooks (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:248694:22)
+    at updateFunctionComponent (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:252261:24)
+    at beginWork (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:253980:20)

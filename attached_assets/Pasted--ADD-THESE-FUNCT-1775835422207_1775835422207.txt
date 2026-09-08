@@ -1,0 +1,124 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD THESE FUNCTIONS to api/src/controllers/admin.controller.js
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. Import at the top of admin.controller.js:
+//      const AdminMessage = require('../models/adminMessage.model');
+//      const { sendAdminSupportEmail } = require('../services/email.service');
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/admin/users/:userId/messages
+ * Send a support email to a specific user and log it.
+ */
+const sendSupportEmail = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { subject, body } = req.body;
+
+    // Validate input
+    if (!subject || !body) {
+      return res.status(400).json({ message: 'Subject and body are required.' });
+    }
+    if (subject.trim().length === 0 || body.trim().length === 0) {
+      return res.status(400).json({ message: 'Subject and body cannot be blank.' });
+    }
+
+    // Look up the recipient user
+    const User = require('../models/user.model'); // adjust path if needed
+    const recipient = await User.findById(userId).select('email name');
+    if (!recipient) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Send via SendGrid
+    let sendGridMessageId = null;
+    try {
+      const result = await sendAdminSupportEmail({
+        toEmail: recipient.email,
+        toName: recipient.name || recipient.email,
+        subject: subject.trim(),
+        body: body.trim(),
+      });
+      // SendGrid returns headers with x-message-id on success
+      sendGridMessageId = result?.messageId || null;
+    } catch (emailError) {
+      console.error('[sendSupportEmail] SendGrid error:', emailError);
+      // Log as failed but still persist the attempt
+      await AdminMessage.create({
+        senderAdminId: req.user._id,
+        senderEmail: req.user.email,
+        recipientUserId: recipient._id,
+        recipientEmail: recipient.email,
+        subject: subject.trim(),
+        body: body.trim(),
+        status: 'failed',
+      });
+      return res.status(502).json({ message: 'Failed to send email. Please try again.' });
+    }
+
+    // Persist the sent message log
+    const message = await AdminMessage.create({
+      senderAdminId: req.user._id,
+      senderEmail: req.user.email,
+      recipientUserId: recipient._id,
+      recipientEmail: recipient.email,
+      subject: subject.trim(),
+      body: body.trim(),
+      status: 'sent',
+      sendGridMessageId,
+    });
+
+    return res.status(201).json({
+      message: 'Email sent successfully.',
+      data: message,
+    });
+  } catch (err) {
+    console.error('[sendSupportEmail] Unexpected error:', err);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+/**
+ * GET /api/admin/users/:userId/messages
+ * Retrieve paginated email history sent to a specific user.
+ * Query params: page (default 1), limit (default 20)
+ */
+const getUserMessageHistory = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
+    const skip = (page - 1) * limit;
+
+    const [messages, total] = await Promise.all([
+      AdminMessage.find({ recipientUserId: userId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('senderAdminId', 'name email')
+        .lean(),
+      AdminMessage.countDocuments({ recipientUserId: userId }),
+    ]);
+
+    return res.status(200).json({
+      data: messages,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPrevPage: page > 1,
+      },
+    });
+  } catch (err) {
+    console.error('[getUserMessageHistory] Error:', err);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+module.exports = {
+  // ...spread your existing exports here, then add:
+  sendSupportEmail,
+  getUserMessageHistory,
+};

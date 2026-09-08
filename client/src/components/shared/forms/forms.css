@@ -1,0 +1,281 @@
+.auth-form-div {
+        width: 50%;
+        margin: 2rem auto 0;
+}
+
+@media (max-width: 768px) {
+    .auth-form-div {
+       width: 100%;
+           padding:0px 2rem;
+    }
+}
+
+h2.form-header {
+}
+
+p.form-headline {
+        font-weight: 500;
+        color: #969696;
+}
+
+.formField {
+        margin-bottom: 1.5rem;
+        position: relative;
+        width: 100%;
+}
+
+button.form-btn {
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        background: #1e3a5f;
+        color: #ffffff;
+}
+
+button.form-btn:hover {
+        background: #152d4a;
+}
+
+.generic-input,
+.password-input {
+        width: 100%;
+        position: relative;
+}
+
+.passwordDiv {
+        position: relative;
+}
+
+.loginEyeIcon {
+        background-color: transparent;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 18px;
+        height: 18px;
+}
+
+.errorMsg {
+        color: red;
+        position: absolute;
+        font-size: 10px;
+        left: 10px;
+        top: 100%;
+}
+
+.divider span.line {
+        width: 100%;
+        border-top: 1px solid #c8cbcb;
+}
+
+.divider span.txt {
+        width: 100%;
+        margin: 0 auto;
+        text-align: center;
+        font-size: 13px;
+        color: #969696;
+        font-weight: 500;
+}
+
+.social-login button.social-btn {
+        background: #ffffff;
+        border: 1px solid #c8cbcb;
+        border-radius: 0.5rem;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #000000;
+        padding: 0.7rem 1rem;
+        width: 100%;
+        text-transform: none;
+}
+
+.social-login button.social-btn span.icon {
+        width: auto;
+        height: auto;
+}
+
+.redirect-txt {
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 15px;
+        color: #000000;
+}
+
+.redirect-txt a {
+        color: #589ced;
+        text-decoration: none;
+}
+
+.react-tel-input.phone-input input {
+        width: 100%;
+        padding-top: 10.5px;
+        padding-bottom: 10.5px;
+        font-size: 12px;
+        border: 1px solid #c8cbcb;
+        border-radius: 4px;
+}
+
+.react-tel-input.phone-input input:hover {
+        border-color: #c8cbcb;
+}
+
+.react-tel-input.phone-input input:focus {
+        border-color: #1e3a5f;
+        box-shadow: none;
+}
+
+.react-tel-input.phone-input .special-label {
+        font-family: 'Inter';
+        font-size: 12px;
+        color: #969696;
+        top: -9px;
+        left: 6px;
+        transform: scale(0.75);
+}
+
+input.otpInput {
+        text-align: center !important;
+        width: 46px !important;
+        padding: 5px 8px;
+        height: 50px;
+        border: 1px solid #c8cbcb;
+        border-radius: 4px;
+        transition: all 0.3s;
+}
+
+input.otpInput::-webkit-inner-spin-button,
+input.otpInput::-webkit-outer-spin-button {
+        display: none;
+}
+
+input.otpInput:focus-visible {
+        border-width: 2px;
+        border-color: #1e3a5f;
+        outline: none;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+        display: none !important;
+}
+
+/* Modules forms */
+
+.app-modal.form-modal {
+}
+
+.app-modal.form-modal .modal-dialog {
+        min-width: 50vw;
+}
+
+.app-modal.form-modal .modal-content {
+        border: none;
+        border-radius: 12px;
+}
+
+.app-modal.form-modal .modal-header {
+        padding: 2rem 2.5rem;
+}
+
+.app-modal.form-modal .modal-header h3 {
+        font-weight: 600;
+        font-size: 24px;
+        color: #1a1a2e;
+        margin: 0;
+}
+
+.app-modal.form-modal .modal-header button {
+        font-size: 1rem;
+}
+
+.app-modal.form-modal .modal-header button:focus {
+        box-shadow: none;
+}
+
+.app-modal.form-modal .modal-header button:focus-visible {
+        box-shadow: none;
+        outline: none;
+}
+
+.app-modal.form-modal .modal-body {
+        padding: 2rem 0;
+}
+
+.app-modal.form-modal .modal-body form {
+        padding: 0 2.5rem;
+}
+
+.app-modal.form-modal .form-tabs {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e7e0ec;
+}
+
+.app-modal.form-modal .form-tabs .form-tab {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #1c1b1f;
+        width: 100%;
+        text-align: center;
+}
+
+.app-modal.form-modal .form-tabs .form-tab.active:after {
+        content: '';
+        display: block;
+        width: 70%;
+        height: 1px;
+        background-color: #1e3a5f;
+        margin: 0 auto;
+}
+
+.form-div {
+        border: 1px solid #e3e5e8;
+        border-radius: 4px;
+}
+
+.form-div .input-prefix {
+        width: fit-content;
+        padding: 0px 15px;
+        font-size: 12px;
+        letter-spacing: 0.15px;
+        color: #757575;
+}
+
+/* Modules forms ends */
+
+/* Extra css */
+
+.list-group-item {
+        padding: 5px 10px !important;
+}
+
+.list-group-item .form-check-input {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px !important;
+}
+
+.list-group-item .form-check-input:focus {
+        box-shadow: none;
+        outline: none;
+        border-color: #1e3a5f;
+}
+
+.list-group-item .form-check-input:checked {
+        background-size: 14px;
+        background-color: #1e3a5f;
+        border-color: #1e3a5f;
+}
+
+.field-prefix {
+        padding: 7.7px 14px;
+        background-color: #ffffff;
+        border: 1px solid #c8c8c8;
+        border-right: 0px;
+        border-radius: 4px 0 0 4px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #717171;
+}
+
+/* Extra css ends */

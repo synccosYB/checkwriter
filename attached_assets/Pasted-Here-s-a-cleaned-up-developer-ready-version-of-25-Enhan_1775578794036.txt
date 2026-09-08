@@ -1,0 +1,256 @@
+Here’s a cleaned-up developer-ready version of **#25 - Enhanced Bank Auto-Fill**:
+
+---
+
+#25 - Enhanced Bank Auto-Fill
+
+## What & Why
+
+Today, when a user enters a routing number while adding a bank account, the system only auto-fills the bank name. This improvement expands that experience so the routing number lookup can populate a fuller bank profile, including the bank name, branch address, and logo.
+
+In addition, users should also be able to search by bank name. As they type a bank name, the system should show matching results, and selecting one should fill in the routing number, address details, and logo.
+
+This reduces manual entry, improves accuracy, and makes the bank setup flow feel more polished and trustworthy.
+
+---
+
+## Done looks like
+
+* When a user enters a valid 9-digit U.S. routing number, the system automatically fetches and displays:
+
+  * bank name
+  * branch street address
+  * city
+  * state
+  * ZIP
+  * bank logo
+* A bank logo is shown near the bank name field or in another clear, visible location once the bank is identified
+* If the user types a bank name such as “Chase,” an autocomplete dropdown appears with matching banks
+* Selecting a bank from the dropdown fills:
+
+  * routing number
+  * bank name
+  * branch address
+  * city
+  * state
+  * ZIP
+  * logo
+* Auto-filled fields stay editable so the user can manually override any value
+* A loading state is shown while the system is fetching bank details
+* If no bank is found from the routing number, the UI shows a subtle non-blocking message telling the user to complete the fields manually
+* Works for U.S. bank accounts only under the existing routing-number-based flow
+
+---
+
+## Out of scope
+
+* Canadian bank auto-fill
+* Local storage or hosting of bank logos
+* Full institution verification or bank account ownership validation
+* Replacing the broader bank account creation flow outside of the auto-fill experience
+
+---
+
+## Backend requirements
+
+### 1. Upgrade routing number lookup
+
+Enhance the existing routing number lookup endpoint so it returns a full bank object instead of only the bank name.
+
+The response should include, where available:
+
+* bankName
+* routingNumber
+* address1
+* city
+* state
+* zip
+* phone
+* logoUrl
+
+If the current provider cannot return all fields, combine sources or replace the provider with one that supports richer institution data.
+
+### 2. Add bank name search endpoint
+
+Create a new backend endpoint that accepts a partial bank name string and returns matching bank results.
+
+Each result should include:
+
+* bankName
+* routingNumber
+* address1
+* city
+* state
+* zip
+* phone
+* logoUrl
+
+The endpoint should:
+
+* support partial matching
+* return a reasonable limit of results
+* debounce well from the frontend
+* return clean normalized response data
+
+### 3. Secure API credentials
+
+Remove the hardcoded ZylaLabs bearer token from controller logic and move it into environment-based configuration.
+
+Requirements:
+
+* token stored in env/secret manager
+* no hardcoded secrets in code
+* service layer should read token from config
+* fail gracefully if token is missing
+
+### 4. Service normalization
+
+Normalize data from the provider into one internal response shape so the frontend does not have to handle provider-specific field names or missing-value differences.
+
+---
+
+## Frontend requirements
+
+### 1. Expand BankAutoFillContext
+
+Update `BankAutoFillContext` so it:
+
+* populates all supported fields into Formik state
+* supports both routing-number lookup and bank-name selection
+* exposes loading state
+* exposes not-found/error state
+* preserves manual editability after auto-fill
+
+### 2. Routing number auto-fill flow
+
+When the user enters a 9-digit routing number:
+
+* trigger lookup automatically
+* show loading indicator while fetching
+* if found, populate all bank fields and logo
+* if not found, show a subtle manual-entry message
+* do not hard-block the user from continuing
+
+### 3. Bank name autocomplete UI
+
+Upgrade the bank name field into an autocomplete-enabled input.
+
+Behavior:
+
+* as the user types, query backend for matching banks
+* show dropdown results with useful context such as routing number and location
+* selecting a result fills all related bank fields
+* allow user to keep typing or manually override values
+
+### 4. Logo display
+
+Display the bank logo once a bank is identified from either:
+
+* routing number lookup
+* bank name selection
+
+Requirements:
+
+* prominent but clean placement
+* fallback placeholder if logo URL is missing or broken
+* should not break layout if image fails to load
+
+### 5. Editable overrides
+
+After auto-fill:
+
+* all populated fields must remain editable
+* user-entered overrides should not be immediately re-replaced unless a new routing number lookup or new autocomplete selection is made intentionally
+
+---
+
+## UX / behavior notes
+
+* Do not aggressively overwrite fields while the user is actively editing them
+* Use subtle status messaging, not alarming error banners
+* Loading state should be lightweight and inline
+* Autocomplete should feel fast and clean, with debouncing to avoid excessive requests
+* If a routing number is incomplete or invalid length, do not fire lookup
+* If a user manually changes data after auto-fill, respect their edits
+
+---
+
+## Suggested API contract
+
+### Routing lookup response
+
+```json
+{
+  "success": true,
+  "data": {
+    "bankName": "JPMorgan Chase Bank, N.A.",
+    "routingNumber": "021000021",
+    "address1": "270 Park Avenue",
+    "city": "New York",
+    "state": "NY",
+    "zip": "10017",
+    "phone": "123-456-7890",
+    "logoUrl": "https://..."
+  }
+}
+```
+
+### Bank name search response
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "bankName": "JPMorgan Chase Bank, N.A.",
+      "routingNumber": "021000021",
+      "address1": "270 Park Avenue",
+      "city": "New York",
+      "state": "NY",
+      "zip": "10017",
+      "phone": "123-456-7890",
+      "logoUrl": "https://..."
+    }
+  ]
+}
+```
+
+---
+
+## Relevant files
+
+* `api/src/controllers/banks.controller.js:940-996`
+* `api/src/services/banks.service.js:176-190`
+* `api/src/constants/index.js:51`
+* `api/src/controllers/autoFill.controller.js`
+* `api/src/services/autoFill.services.js`
+* `api/src/models/bankAutoFill.model.js`
+* `client/src/pages/Bank/components/context/BankAutoFillContext.jsx`
+* `client/src/pages/Bank/components/modals/AddNewModal/USA/index.jsx`
+* `client/src/API/banks/useBankName.ts`
+* `client/src/API/banks/banksClient.js`
+
+---
+
+## Acceptance criteria
+
+* Entering a valid 9-digit U.S. routing number auto-fills bank name, address fields, and logo when data exists
+* Bank name autocomplete returns matching banks as the user types
+* Selecting an autocomplete option fills routing number, bank name, address, and logo
+* All auto-filled fields remain editable
+* Inline loading state is visible during lookup/search
+* Missing-result case is handled gracefully with a subtle manual-entry message
+* No API token remains hardcoded in controller or service files
+* Bank logo displays correctly when available and falls back cleanly when unavailable
+* Frontend consumes a normalized backend response shape for both lookup flows
+
+---
+
+## Developer notes
+
+* Prefer a single normalized bank object shape across all flows
+* Keep routing number lookup and bank name search logic in service-layer helpers, not duplicated in controllers
+* Debounce autocomplete on the frontend
+* Ensure no regressions to the existing U.S. bank account creation flow
+
+If you want, I can also turn this into the exact same format as your other tickets with sections like **Tasks**, **Implementation Notes**, and **QA Scenarios**.

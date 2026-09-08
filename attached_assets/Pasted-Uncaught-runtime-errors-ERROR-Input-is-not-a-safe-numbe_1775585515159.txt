@@ -1,0 +1,54 @@
+Uncaught runtime errors:
+×
+ERROR
+Input is not a safe number, it’s either too large or too small.
+RangeError: Input is not a safe number, it’s either too large or too small.
+    at Object.x [as toWords] (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:200962:22)
+    at numberToCurrencyWords (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:469523:72)
+    at onChange (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:428526:145)
+    at handleChange (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:19647:7)
+    at HTMLUnknownElement.callCallback (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239013:18)
+    at Object.invokeGuardedCallbackDev (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239057:20)
+    at invokeGuardedCallback (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239114:35)
+    at invokeGuardedCallbackAndCatchFirstError (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239128:29)
+    at executeDispatch (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:243271:7)
+    at processDispatchQueueItemsInOrder (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:243297:11)
+ERROR
+Input is not a safe number, it’s either too large or too small.
+RangeError: Input is not a safe number, it’s either too large or too small.
+    at Object.x [as toWords] (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:200962:22)
+    at numberToCurrencyWords (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:469523:72)
+    at onChange (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:428526:145)
+    at handleChange (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:19647:7)
+    at HTMLUnknownElement.callCallback (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239013:18)
+    at Object.invokeGuardedCallbackDev (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239057:20)
+    at invokeGuardedCallback (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239114:35)
+    at invokeGuardedCallbackAndCatchFirstError (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239128:29)
+    at executeDispatch (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:243271:7)
+    at processDispatchQueueItemsInOrder (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:243297:11)
+ERROR
+Input is not a safe number, it’s either too large or too small.
+RangeError: Input is not a safe number, it’s either too large or too small.
+    at Object.x [as toWords] (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:200962:22)
+    at numberToCurrencyWords (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:469523:72)
+    at onBlur (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:428533:143)
+    at handleBlur (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:19620:7)
+    at HTMLUnknownElement.callCallback (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239013:18)
+    at Object.invokeGuardedCallbackDev (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239057:20)
+    at invokeGuardedCallback (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239114:35)
+    at invokeGuardedCallbackAndCatchFirstError (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239128:29)
+    at executeDispatch (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:243271:7)
+    at processDispatchQueueItemsInOrder (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:243297:11)
+ERROR
+Input is not a safe number, it’s either too large or too small.
+RangeError: Input is not a safe number, it’s either too large or too small.
+    at Object.x [as toWords] (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:200962:22)
+    at numberToCurrencyWords (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:469523:72)
+    at onBlur (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:428533:143)
+    at handleBlur (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:19620:7)
+    at HTMLUnknownElement.callCallback (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239013:18)
+    at Object.invokeGuardedCallbackDev (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239057:20)
+    at invokeGuardedCallback (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239114:35)
+    at invokeGuardedCallbackAndCatchFirstError (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:239128:29)
+    at executeDispatch (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:243271:7)
+    at processDispatchQueueItemsInOrder (https://8933d946-7cbb-49e9-809b-a279c7fa1b69-00-1xpufx13xrtak.riker.replit.dev/static/js/bundle.js:243297:11)

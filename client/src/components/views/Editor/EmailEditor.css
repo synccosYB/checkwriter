@@ -1,0 +1,53 @@
+.mail-editor .tox .tox-editor-container {
+	flex-direction: column-reverse;
+}
+
+.mail-editor .tox .tox-statusbar {
+	display: none;
+}
+
+.mail-editor .tox.tox-tinymce {
+	border: none;
+	border-radius: 0;
+}
+
+.mail-editor .tox.tox-tinymce .tox-edit-area {
+	border: 1px solid #e3e5e8;
+	border-radius: 4px;
+}
+
+.mail-editor .tox.tox-tinymce .tox-toolbar__primary {
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+	margin-top: 15px;
+}
+
+.mail-editor .tox.tox-tinymce .tox .tox-tbtn {
+	margin: 0 8px !important;
+}
+
+.modal-loader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.1);
+	height: 100%;
+	z-index: 999;
+}
+
+.tox .tox-notification--warning {
+	display: none !important;
+}
+
+.mail-editor .loader-container {
+	z-index: 5;
+	top: 0;
+	right: 0;
+	left: 0;
+	background-color: rgba(0, 0, 0, 13%);
+	border-radius: 4px;
+	min-height: 45vh;
+}

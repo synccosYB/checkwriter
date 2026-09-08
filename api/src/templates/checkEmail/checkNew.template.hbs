@@ -1,0 +1,222 @@
+<div class='check-container'>
+
+  <div class='section-one'>
+    <div class='check-header'>
+      <div class='d-flex' style='flex: 1; column-gap:8px'>
+        {{#if logo}}
+          <img src='{{logo}}' alt='logo' width='63' />
+        {{/if}}
+        <div>
+          <div class='bank-name'>{{userData.firstName}}
+            {{userData.lastName}}</div>
+
+          <div class='city'>
+            {{userData.addressLine1}}{{#if userData.addressLine1}},{{/if}}
+            {{userData.addressLine2}}
+            <br />
+            {{userData.city}}{{#if userData.city}},{{/if}}
+            {{userData.state}}{{#if userData.state}},{{/if}}
+            {{userData.zip}}
+          </div>
+        </div>
+      </div>
+      <div class='bank-info'>
+
+        <div class='key-bank'>{{bank.bankName}}</div>
+      </div>
+      <div
+        class='check-number'
+        style='flex: 1; text-align:right'
+      >{{checkNumber}}</div>
+
+    </div>
+
+    <div class='date'>
+      <div>DATE</div>
+      <div class='date-underline'>{{formatDateLong issuedDate}}</div>
+    </div>
+
+    <div class='pay-info'>
+      <div class='d-flex justify-between'>
+        <div class='pay-to'>
+          <div>PAY TO THE<br />ORDER OF</div>
+          <div class='pay-to-underline'>
+            <br />
+            {{payee.name}}
+          </div>
+        </div>
+        <div class='pay-amount'>
+          <div>$</div>
+          <input class='pay-amount-input' value='{{formatAmount amount}}' />
+        </div>
+      </div>
+      <div class='d-flex'>
+        <div class='dollar-underline'>
+          {{formatAmountInWords amount}}
+        </div>
+        <div class='dollar'>DOLLARS</div>
+      </div>
+    </div>
+
+    <div class='d-flex'>
+      <div class='bottom-left'>
+        <div class='address' style='height: 35px;'>
+          <div>{{payee.name}}</div>
+          <div class='address1'>
+            {{address.addressLine1}}{{#if address.addressLine1}},{{/if}}
+            {{address.addressLine2}}</div>
+          <div class='address2'>
+            {{address.city}}{{#if address.city}},{{/if}}
+            {{address.state}}{{#if address.state}},{{/if}}
+            {{address.zipCode}}
+          </div>
+        </div>
+        <div class='memo'>
+          <div class='memo-caption'>MEMO</div>
+          <div class='memo-underline'>{{memo}}</div>
+        </div>
+      </div>
+
+      <div class='signature' style='position:relative'>
+
+        <div class='signature-underline'>
+          <div
+            style='position:absolute; top:0; left:50%; transform: translateX(-50%);'
+          >
+            {{#if bank.bankPreferences.signatureEnabled}}
+              {{#if signatureUrl}}
+                <img
+                  src='{{signatureUrl}}'
+                  alt='signature'
+                  style='max-width: 100%; width: 100px; height: 100px; display: block; margin: 0 auto; object-fit: contain;'
+                />
+              {{/if}}
+
+            {{/if}}</div></div>
+      </div>
+    </div>
+
+    <div class='routing' style='margin-bottom: 40px;'>
+      C{{checkNumber}}C A{{bank.bankRoutingNumber}}A C{{bank.accountNumber}}C
+    </div>
+  </div>
+
+  <div class='section-two'>
+    <div class='box'>
+      <div style='height: fit-content;'>
+        <div class='d-flex justify-between' style='flex: 1; column-gap:8px'>
+          {{#if logo}}
+            <img src='{{logo}}' alt='logo' width='63' />
+          {{/if}}
+          <div>
+            <div class='bank-name'>{{userData.firstName}}
+              {{userData.lastName}}</div>
+
+            <div class='city'>
+              {{userData.addressLine1}}{{#if userData.addressLine1}},{{/if}}
+              {{userData.addressLine2}}
+              <br />
+              {{userData.city}}{{#if userData.city}},{{/if}}
+              {{userData.state}}{{#if userData.state}},{{/if}}
+              {{userData.zip}}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class='address'>
+        <div class='pay-to'>{{payee.name}}</div>
+        <div class='address1'>
+          {{address.addressLine1}}{{#if address.addressLine1}},{{/if}}
+          {{address.addressLine2}}</div>
+        <div class='address2'>
+          {{address.city}}{{#if address.city}},{{/if}}
+          {{address.state}}{{#if address.state}},{{/if}}
+          {{address.zipCode}}
+        </div>
+      </div>
+    </div>
+
+    <div class='pay-captions'>
+      <div class='pay-to'>Pay To</div>
+      <div class='pay-from'>Pay From</div>
+    </div>
+    <div class='pay-data'>
+      <div class='pay-to'>{{payee.name}}</div>
+      <div class='pay-from'>{{userData.firstName}}
+        &nbsp;
+        {{userData.lastName}}</div>
+    </div>
+    <div class='check-captions'>
+      <div class='check-number'>Check No.</div>
+      <div class='date'>Date.</div>
+      <div class='check-memo'>Check Memo.</div>
+      <div class='check-amount'>Check Amount.</div>
+    </div>
+    <div class='check-data'>
+      <div class='check-number'>{{checkNumber}}</div>
+      <div class='date'>{{formatDate issuedDate}}</div>
+      <div class='check-memo'>{{memo}}</div>
+      <div class='check-amount'>{{formatAmount amount}}</div>
+    </div>
+  </div>
+
+  <div class='section-three'>
+    <div class='box'>
+      <div style='height: fit-content;'>
+        <div class='d-flex justify-between' style='flex: 1; column-gap:8px'>
+          {{#if logo}}
+            <img src='{{logo}}' alt='logo' width='63' />
+          {{/if}}
+          <div>
+            <div class='bank-name'>{{userData.firstName}}
+              {{userData.lastName}}</div>
+
+            <div class='city'>
+              {{userData.addressLine1}}{{#if userData.addressLine1}},{{/if}}
+              {{userData.addressLine2}}
+              <br />
+              {{userData.city}}{{#if userData.city}},{{/if}}
+              {{userData.state}}{{#if userData.state}},{{/if}}
+              {{userData.zip}}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class='address'>
+        <div class='pay-to'>{{payee.name}}</div>
+        <div class='address1'>
+          {{address.addressLine1}}{{#if address.addressLine1}},{{/if}}
+          {{address.addressLine2}}</div>
+        <div class='address2'>
+          {{address.city}}{{#if address.city}},{{/if}}
+          {{address.state}}{{#if address.state}},{{/if}}
+          {{address.zipCode}}
+        </div>
+      </div>
+    </div>
+
+    <div class='pay-captions'>
+      <div class='pay-to'>Pay To</div>
+      <div class='pay-from'>Pay From</div>
+    </div>
+    <div class='pay-data'>
+      <div class='pay-to'>{{payee.name}}
+      </div>
+      <div class='pay-from'>{{userData.firstName}}
+        &nbsp;
+        {{userData.lastName}}</div>
+    </div>
+    <div class='check-captions'>
+      <div class='check-number'>Check No.</div>
+      <div class='date'>Date.</div>
+      <div class='check-memo'>Check Memo.</div>
+      <div class='check-amount'>Check Amount.</div>
+    </div>
+    <div class='check-data'>
+      <div class='check-number'>{{checkNumber}}</div>
+      <div class='date'>{{formatDate issuedDate}}</div>
+      <div class='check-memo'>{{memo}}</div>
+      <div class='check-amount'>{{formatAmount amount}}</div>
+    </div>
+  </div>
+</div>

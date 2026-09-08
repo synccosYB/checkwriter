@@ -1,0 +1,65 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// CHANGES to client/src/pages/UserManagement/index.jsx
+// ─────────────────────────────────────────────────────────────────────────────
+// This file shows the additions needed. Merge these into your existing file.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// 1. ADD these imports near the top:
+import { useState } from 'react'; // already likely imported
+import SendEmailModal from './components/SendEmailModal';
+import EmailHistoryDrawer from './components/EmailHistoryDrawer';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. ADD these state variables inside your UserManagement component:
+
+const [emailModalUser, setEmailModalUser] = useState(null);   // user to email, or null
+const [historyDrawerUser, setHistoryDrawerUser] = useState(null); // user for history, or null
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. In your user table row, ADD two action buttons (alongside existing actions):
+//
+//    <button
+//      className="action-btn"
+//      title="Send Email"
+//      onClick={() => setEmailModalUser(user)}
+//    >
+//      ✉ Send Email
+//    </button>
+//
+//    <button
+//      className="action-btn"
+//      title="View Email History"
+//      onClick={() => setHistoryDrawerUser(user)}
+//    >
+//      📋 Email History
+//    </button>
+//
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. ADD the modal and drawer at the bottom of your component's return JSX,
+//    just before the closing </> or </div>:
+
+const UserManagementAdditions = () => (
+  <>
+    {/* Send Email Modal */}
+    {emailModalUser && (
+      <SendEmailModal
+        user={emailModalUser}
+        onClose={(wasSent) => {
+          setEmailModalUser(null);
+          // Optionally auto-open history after sending so admin can confirm
+          // if (wasSent) setHistoryDrawerUser(emailModalUser);
+        }}
+      />
+    )}
+
+    {/* Email History Drawer */}
+    {historyDrawerUser && (
+      <EmailHistoryDrawer
+        user={historyDrawerUser}
+        onClose={() => setHistoryDrawerUser(null)}
+      />
+    )}
+  </>
+);
+
+export default UserManagementAdditions;

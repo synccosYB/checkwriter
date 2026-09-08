@@ -1,0 +1,9 @@
+.integration-grid {
+}
+
+.integration-grid .integration-div {
+        border: 1px solid #d9e0e8;
+        border-radius: 0.75rem;
+        padding: 1rem 0;
+        width: 100%;
+}

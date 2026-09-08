@@ -1,0 +1,36 @@
+.image-upload-div {
+	width: 7rem;
+	height: 7rem;
+	background: #bababa;
+	border-radius: 50%;
+	position: relative;
+	margin-left: 12px;
+}
+
+.company-form-row {
+	margin: 1rem 0;
+}
+
+.tab-label {
+	display: flex;
+	align-items: center;
+}
+
+.company-logo span {
+	width: auto;
+	height: auto;
+}
+
+img.org-logo-small {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 50px;
+}
+
+.no-org-logo {
+	background-color: #f5f5f5;
+	width: fit-content;
+	margin: 0 auto;
+	padding: 12px 12px;
+	border-radius: 50px;
+}

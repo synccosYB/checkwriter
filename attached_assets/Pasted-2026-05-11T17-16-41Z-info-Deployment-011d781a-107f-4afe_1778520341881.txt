@@ -1,0 +1,263 @@
+2026-05-11T17:16:41Z info: Deployment: 011d781a-107f-4afe-858c-8ee53511c007
+2026-05-11T17:16:41Z info: Build: faacbea8-6e2e-49a1-b106-f7bf7812dcca
+2026-05-11T17:16:42Z info: Running Security Scan
+2026-05-11T17:18:03Z info: Security Scan Complete
+2026-05-11T17:18:07Z info: Installing packages
+--> npm install
+
+
+> synccos-check-writer-monorepo@1.0.0 postinstall
+> cd api && npm install && cd ../client && npm install
+
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+added 1 package, and audited 582 packages in 5s
+
+
+55 packages are looking for funding
+  run `npm fund` for details
+
+
+15 vulnerabilities (14 moderate, 1 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date, audited 1655 packages in 6s
+
+297 packages are looking for funding
+
+  run `npm fund` for details
+
+
+34 vulnerabilities (17 low, 13 moderate, 4 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+removed 1 package, and audited 42 packages in 13s
+
+2 packages are looking for funding
+
+  run `npm fund` for details
+
+
+4 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.14.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.14.1
+npm notice To update run: npm install -g npm@11.14.1
+npm notice
+
+2026-05-11T17:18:20Z info: Starting Build
+=== Building API (backend-only deployment) ===
+=== Installing root dependencies ===
+
+
+> synccos-check-writer-monorepo@1.0.0 postinstall
+> cd api && npm install && cd ../client && npm install
+
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+up to date, audited 582 packages in 1s
+
+
+55 packages are looking for funding
+  run `npm fund` for details
+
+
+15 vulnerabilities (14 moderate, 1 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date, audited 1655 packages in 2s
+
+
+297 packages are looking for funding
+  run `npm fund` for details
+
+
+34 vulnerabilities (17 low, 13 moderate, 4 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+
+up to date in 4s
+
+=== Installing API dependencies ===
+
+
+> synccos-backend-check-writer@1.0.0 postinstall
+> node -e "if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }" || true
+
+
+
+up to date in 785ms
+
+=== Syncing database schema ===
+
+No config path provided, using default 'drizzle.config.ts'
+
+Reading config file '/home/runner/workspace/api/drizzle.config.ts'
+
+Using 'pg' driver for database querying
+
+[⣷] Pulling schema from database...
+
+(node:218) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[⣽] Pulling schema from database...
+
+[⣷] Pulling schema from database...
+
+[⣯] Pulling schema from database...
+
+[⣟] Pulling schema from database...
+
+[⡿] Pulling schema from database...
+
+[⢿] Pulling schema from database...
+
+[⣻] Pulling schema from database...
+
+[✓] Pulling schema from database...
+
+[✓] Changes applied
+
+=== API build complete ===
+
+2026-05-11T17:18:35Z info: Pushing pid1 binary layer...
+2026-05-11T17:18:36Z info: Pushing Repl layer...
+2026-05-11T17:18:36Z info: Pushing hosting layer...
+2026-05-11T17:18:36Z info: Nix layers for this Repl are uncached.
+2026-05-11T17:18:36Z info: Pushing nix-0 layer...
+2026-05-11T17:18:36Z info: Created hosting layer
+2026-05-11T17:18:36Z info: Created pid1 binary layer
+2026-05-11T17:20:44Z info: Created nix-0 layer
+2026-05-11T17:20:44Z info: uploading image for cached layer
+2026-05-11T17:20:44Z info: pushed cache image manifest
+2026-05-11T17:20:45Z info: pushed cache soci index manifest
+2026-05-11T17:20:45Z info: uploading cached layer
+2026-05-11T17:20:45Z info: successfully uploaded cached layer
+2026-05-11T17:21:14Z info: Created Repl layer
+2026-05-11T17:21:16Z info: Pushed image manifest
+2026-05-11T17:21:17Z info: Pushed soci index manifest
+2026-05-11T17:21:23Z info: Creating virtual machine
+2026-05-11T17:21:38Z info: Virtual machine created
+2026-05-11T17:21:38Z info: Waiting for deployment to be ready
+2026-05-11T17:22:28Z info: Deployment successful

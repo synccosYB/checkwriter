@@ -1,0 +1,106 @@
+main.de264ce2.js:2 Token refresh failed: AxiosError: Request failed with status code 500
+    at wy (main.de264ce2.js:2:1612920)
+    at XMLHttpRequest.f (main.de264ce2.js:2:1617833)
+    at yv.request (main.de264ce2.js:2:1629433)
+    at async yC.handleAccessTokenRefresh (main.de264ce2.js:2:1660390)
+    at async main.de264ce2.js:2:1659500
+    at async yv.request (main.de264ce2.js:2:1629337)
+    at async yC.request (main.de264ce2.js:2:1661242)
+onRefreshTokenFailure @ main.de264ce2.js:2Understand this error
+main.de264ce2.js:2 No refresh token available.
+handleAccessTokenRefresh @ main.de264ce2.js:2Understand this warning
+main.de264ce2.js:2 Token refresh failed.
+handleRefreshFailure @ main.de264ce2.js:2Understand this error
+main.de264ce2.js:2 No refresh token available.
+handleAccessTokenRefresh @ main.de264ce2.js:2Understand this warning
+main.de264ce2.js:2 Token refresh failed.
+handleRefreshFailure @ main.de264ce2.js:2Understand this error
+main.de264ce2.js:2 No refresh token available.
+handleAccessTokenRefresh @ main.de264ce2.js:2Understand this warning
+main.de264ce2.js:2 Token refresh failed.
+handleRefreshFailure @ main.de264ce2.js:2Understand this error
+main.de264ce2.js:2 Access token not found.
+(anonymous) @ main.de264ce2.js:2Understand this warning
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.

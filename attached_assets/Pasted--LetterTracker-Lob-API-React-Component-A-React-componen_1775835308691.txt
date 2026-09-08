@@ -1,0 +1,127 @@
+# LetterTracker — Lob API React Component
+
+A React component that lets users track their physical mail in real-time via the Lob API.
+
+---
+
+## Features
+
+- Search any letter by its Lob letter ID (`ltr_xxxxxxxxxxxxxxxx`)
+- Live progress bar showing mail journey (Created → Processed → In transit → Delivered)
+- Full event timeline with timestamps
+- Delivery window, mail type, recipient, metadata display
+- Auto-refreshes every 60 seconds
+- Manual refresh button
+
+---
+
+## Setup
+
+### 1. Install dependencies
+
+The component has no extra dependencies — just React 17+.
+
+```bash
+npm install react react-dom
+```
+
+### 2. Set your API key
+
+Add your Lob API key to your environment file:
+
+```env
+# .env
+LOB_API_KEY=your_lob_api_key_here
+```
+
+### 3. Use the component
+
+```jsx
+import LetterTracker from "./LetterTracker";
+
+function App() {
+  return <LetterTracker apiKey={process.env.LOB_API_KEY} />;
+}
+```
+
+---
+
+## ⚠️ Important: CORS & API key safety
+
+Lob's API **does not allow direct browser requests** — you'll get a CORS error if you call it from the frontend. You must proxy requests through your own backend.
+
+### Minimal Express proxy (Node.js)
+
+```js
+// server.js
+const express = require("express");
+const fetch = require("node-fetch");
+require("dotenv").config();
+
+const app = express();
+app.use(express.json());
+
+app.get("/api/letters/:id", async (req, res) => {
+  const credentials = Buffer.from(`${process.env.LOB_API_KEY}:`).toString("base64");
+
+  try {
+    const response = await fetch(`https://api.lob.com/v1/letters/${req.params.id}`, {
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return res.status(response.status).json(err);
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: { message: e.message } });
+  }
+});
+
+app.listen(3001, () => console.log("Proxy listening on :3001"));
+```
+
+Then update the fetch URL in `LetterTracker.jsx`:
+
+```js
+// Change this line:
+const res = await fetch(`${LOB_BASE}/letters/${letterId}`, { ... });
+
+// To your proxy:
+const res = await fetch(`/api/letters/${letterId}`);
+```
+
+---
+
+## Finding your Letter ID
+
+Your letter ID looks like: `ltr_xxxxxxxxxxxxxxxx`
+
+You can find it:
+- In the **Lob dashboard** under "Letters"
+- In the API response when the letter was created (`POST /v1/letters` returns `id`)
+- In the metadata you stored on the letter (e.g. linked to a user or check ID)
+
+---
+
+## Lob event types
+
+| Event | Meaning |
+|-------|---------|
+| `letter.created` | Letter created in Lob |
+| `letter.rendered_pdf` | PDF generated |
+| `letter.rendered_thumbnails` | Preview thumbnails ready |
+| `letter.billed` | Charged and queued for printing |
+| `letter.in_transit` | Picked up by USPS |
+| `letter.in_local_area` | Arrived at local facility |
+| `letter.processed_for_delivery` | Out for delivery |
+| `letter.delivered` | Delivered to recipient |
+| `letter.re_routed` | Forwarded to new address |
+| `letter.returned_to_sender` | Returned — check address |
+| `letter.failed` | Delivery failed |

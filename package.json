@@ -1,0 +1,23 @@
+{
+  "name": "synccos-check-writer-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd api && npm install && cd ../client && npm install",
+    "install:all": "cd api && npm install && cd ../client && npm install",
+    "build:client": "bash scripts/build-client.sh",
+    "build:api": "bash scripts/build-api.sh",
+    "build": "bash scripts/build-client.sh",
+    "start:api": "bash scripts/start.sh",
+    "start": "bash scripts/start.sh",
+    "dev": "bash -c \"cd api && npm run start & cd client && PORT=5000 HOST=0.0.0.0 DANGEROUSLY_DISABLE_HOST_CHECK=true npm start\"",
+    "mobile:build": "cd client && npm run build && npx cap sync"
+  },
+  "dependencies": {
+    "@types/pg": "^8.20.0",
+    "cross-env": "^7.0.3",
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.20.0"
+  }
+}

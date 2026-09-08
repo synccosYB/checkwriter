@@ -1,0 +1,118 @@
+.generic-table-container {
+}
+
+.generic-table-div {
+	margin-top: 1.5rem;
+	box-shadow: none;
+	border-radius: 12px;
+	border: 1px solid #e2e8f0;
+	overflow: hidden;
+}
+
+table.generic-table {
+}
+
+table.generic-table thead.generic-table-head tr.generic-table-head-row {
+	background-color: #f8fafc;
+}
+
+table.generic-table thead.generic-table-head tr.generic-table-head-row th {
+	background-color: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	color: #64748b;
+	margin-top: 0;
+	font-family: 'Inter';
+	padding: 12px 16px;
+	border: none;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	border-bottom: 2px solid #e2e8f0;
+}
+
+table.generic-table
+	thead.generic-table-head
+	tr.generic-table-head-row
+	th:first-child {
+	border-radius: 0;
+}
+
+table.generic-table
+	thead.generic-table-head
+	tr.generic-table-head-row
+	th:last-child {
+	border-radius: 0;
+}
+
+table.generic-table thead.generic-table-head {
+	z-index: 10;
+	position: relative;
+}
+
+table.generic-table
+	thead.generic-table-head
+	tr.generic-table-head-row
+	th:first-child {
+	padding-left: 1rem;
+}
+
+table.generic-table
+	thead.generic-table-head
+	tr.generic-table-head-row
+	th:last-child {
+	padding-right: 1rem;
+}
+
+table.generic-table tbody.generic-table-body {
+	padding-bottom: 3rem;
+}
+
+table.generic-table tbody.generic-table-body tr {
+	transition: background-color 0.15s ease;
+}
+
+table.generic-table tbody.generic-table-body tr:hover {
+	background-color: #f8fafc;
+}
+
+table.generic-table tbody.generic-table-body tr td {
+	padding: 14px 16px;
+	border-bottom: 1px solid #f1f5f9;
+}
+
+table.generic-table tbody.generic-table-body tr td:first-child {
+	padding-left: 1rem;
+}
+
+table.generic-table tbody.generic-table-body tr td:last-child {
+	padding-right: 1rem;
+}
+
+table.generic-table tbody.generic-table-body tr td p {
+	font-size: 13px;
+	font-weight: normal;
+	color: #1a1a2e;
+	margin: 0;
+	width: 100%;
+	text-align: inherit;
+}
+
+.cell-border {
+	min-height: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: inherit;
+	font-size: 13px;
+}
+
+.generic-table-pagination p {
+	margin: 0;
+	font-weight: 500;
+	font-size: 14px;
+	color: #64748b;
+}
+
+.check-status-div {
+	width: 120px;
+}

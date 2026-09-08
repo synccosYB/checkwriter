@@ -1,0 +1,20 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "1o2kYORH7mqWdIC_NzsTl"
+uri = "file://api/exports/mongodb-export.tar.gz"
+type = "unspecified"
+title = "MongoDB Full Export (all 38 collections)"
+
+[[outputs]]
+id = "EJjGDixNtJcV0HhgK793L"
+uri = "file://.local/tasks/production-fix-report.md"
+type = "text"
+title = "Production Outage Fix Report"
+
+[[outputs]]
+id = "Zsgq13zswcyTFzIMCHePx"
+uri = "file://.local/tasks/user-enhancements-report.md"
+type = "text"
+title = "Synccos Check Writer — What's New"

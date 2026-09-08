@@ -1,0 +1,52 @@
+main.bb2e9beb.js:2 Token refresh failed: AxiosError: Request failed with status code 500
+    at jy (main.bb2e9beb.js:2:1612300)
+    at XMLHttpRequest.f (main.bb2e9beb.js:2:1617213)
+    at Sv.request (main.bb2e9beb.js:2:1628813)
+    at async SC.handleAccessTokenRefresh (main.bb2e9beb.js:2:1659770)
+    at async main.bb2e9beb.js:2:1658880
+    at async Sv.request (main.bb2e9beb.js:2:1628717)
+    at async SC.request (main.bb2e9beb.js:2:1660622)
+onRefreshTokenFailure @ main.bb2e9beb.js:2Understand this error
+2main.bb2e9beb.js:2 Access token not found.
+(anonymous) @ main.bb2e9beb.js:2Understand this warning
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+7main.bb2e9beb.js:2 Access token not found.
+(anonymous) @ main.bb2e9beb.js:2Understand this warning
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+main.bb2e9beb.js:2 TypeError: Cannot read properties of undefined (reading 'addListener')
+    at o (main.bb2e9beb.js:2:40330)
+    at main.bb2e9beb.js:2:40405
+    at Array.reduce (<anonymous>)
+    at g (main.bb2e9beb.js:2:40376)
+    at v (main.bb2e9beb.js:2:40648)
+    at gn.componentDidMount (main.bb2e9beb.js:2:184028)
+    at ks (main.bb2e9beb.js:2:441195)
+    at bs (main.bb2e9beb.js:2:439525)
+    at vs (main.bb2e9beb.js:2:439189)
+    at main.bb2e9beb.js:2:451026
+dl @ main.bb2e9beb.js:2Understand this error
+main.bb2e9beb.js:2 TypeError: Cannot read properties of undefined (reading 'addListener')
+    at o (main.bb2e9beb.js:2:40330)
+    at main.bb2e9beb.js:2:40405
+    at Array.reduce (<anonymous>)
+    at g (main.bb2e9beb.js:2:40376)
+    at v (main.bb2e9beb.js:2:40648)
+    at gn.componentDidMount (main.bb2e9beb.js:2:184028)
+    at ks (main.bb2e9beb.js:2:441195)
+    at bs (main.bb2e9beb.js:2:439525)
+    at vs (main.bb2e9beb.js:2:439189)
+    at main.bb2e9beb.js:2:451026

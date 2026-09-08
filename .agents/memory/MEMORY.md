@@ -1,0 +1,2 @@
+- [Deployment build OOM](deploy-build-oom.md) — unified deploy build dies silently at React optimize = OOM-kill; keep build lean (DISABLE_ESLINT_PLUGIN, no sourcemaps, 4GB heap), not just bigger heap.
+- [Publishing security gates](publishing-security-gates.md) — after fixing the reported critical package, run a clean install and audit; the package firewall may reveal another newly blocked transitive version.

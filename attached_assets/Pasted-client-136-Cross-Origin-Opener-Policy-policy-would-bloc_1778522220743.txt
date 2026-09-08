@@ -1,0 +1,88 @@
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132
+setTimeout
+_.Dd.start @ client:132
+_.mg @ client:136
+fv.requestAccessToken @ client:402
+(anonymous) @ main.de264ce2.js:2
+Ee @ main.de264ce2.js:2
+Ve @ main.de264ce2.js:2
+(anonymous) @ main.de264ce2.js:2
+Nt @ main.de264ce2.js:2
+_t @ main.de264ce2.js:2
+(anonymous) @ main.de264ce2.js:2
+uu @ main.de264ce2.js:2
+Te @ main.de264ce2.js:2
+Kt @ main.de264ce2.js:2
+Ua @ main.de264ce2.js:2
+Wa @ main.de264ce2.js:2Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132
+setTimeout
+_.Dd.start @ client:132
+_.mg @ client:136
+fv.requestAccessToken @ client:402
+(anonymous) @ main.de264ce2.js:2
+Ee @ main.de264ce2.js:2
+Ve @ main.de264ce2.js:2
+(anonymous) @ main.de264ce2.js:2
+Nt @ main.de264ce2.js:2
+_t @ main.de264ce2.js:2
+(anonymous) @ main.de264ce2.js:2
+uu @ main.de264ce2.js:2
+Te @ main.de264ce2.js:2
+Kt @ main.de264ce2.js:2
+Ua @ main.de264ce2.js:2
+Wa @ main.de264ce2.js:2Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.
+_.jg.C @ client:136
+Zf @ client:130
+_.l.dispatchEvent @ client:129
+_.Dd.H @ client:132
+setTimeout
+_.Dd.start @ client:132
+_.Dd.H @ client:132
+setTimeout
+_.Dd.start @ client:132
+_.Dd.H @ client:132
+setTimeout
+_.Dd.start @ client:132
+_.Dd.H @ client:132
+setTimeout
+_.Dd.start @ client:132
+_.Dd.H @ client:132
+setTimeout
+_.Dd.start @ client:132
+_.mg @ client:136
+fv.requestAccessToken @ client:402
+(anonymous) @ main.de264ce2.js:2
+Ee @ main.de264ce2.js:2
+Ve @ main.de264ce2.js:2
+(anonymous) @ main.de264ce2.js:2
+Nt @ main.de264ce2.js:2
+_t @ main.de264ce2.js:2
+(anonymous) @ main.de264ce2.js:2
+uu @ main.de264ce2.js:2
+Te @ main.de264ce2.js:2
+Kt @ main.de264ce2.js:2
+Ua @ main.de264ce2.js:2
+Wa @ main.de264ce2.js:2Understand this error
+client:136 Cross-Origin-Opener-Policy policy would block the window.closed call.

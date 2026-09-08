@@ -1,0 +1,141 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { getUserEmailHistory } from '../../../API/admin/adminClient';
+
+const PAGE_LIMIT = 10;
+
+/**
+ * Side drawer showing paginated email history for a user.
+ *
+ * Props:
+ *   user    – { _id, email, name }
+ *   onClose – callback to close the drawer
+ */
+const EmailHistoryDrawer = ({ user, onClose }) => {
+  const [messages, setMessages] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState('idle'); // idle | loading | error
+  const [expandedId, setExpandedId] = useState(null);
+
+  const fetchHistory = useCallback(async (pageNum) => {
+    setStatus('loading');
+    try {
+      const res = await getUserEmailHistory(user._id, { page: pageNum, limit: PAGE_LIMIT });
+      setMessages(res.data);
+      setPagination(res.pagination);
+      setStatus('idle');
+    } catch (err) {
+      console.error('Failed to load email history:', err);
+      setStatus('error');
+    }
+  }, [user._id]);
+
+  useEffect(() => {
+    fetchHistory(page);
+  }, [page, fetchHistory]);
+
+  const formatDate = (iso) => {
+    const d = new Date(iso);
+    return d.toLocaleString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  };
+
+  return (
+    <div className="drawer-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="drawer-panel email-history-drawer">
+        {/* Header */}
+        <div className="drawer-header">
+          <div>
+            <h2 className="drawer-title">Email History</h2>
+            <p className="drawer-subtitle">{user.name || user.email}</p>
+          </div>
+          <button className="modal-close-btn" onClick={onClose} aria-label="Close">✕</button>
+        </div>
+
+        {/* Body */}
+        <div className="drawer-body">
+          {status === 'loading' && messages.length === 0 && (
+            <div className="drawer-loading">Loading…</div>
+          )}
+
+          {status === 'error' && (
+            <div className="drawer-error">
+              Failed to load email history.{' '}
+              <button className="link-btn" onClick={() => fetchHistory(page)}>Retry</button>
+            </div>
+          )}
+
+          {status !== 'loading' && messages.length === 0 && (
+            <div className="drawer-empty">No emails have been sent to this user yet.</div>
+          )}
+
+          <ul className="email-history-list">
+            {messages.map((msg) => (
+              <li
+                key={msg._id}
+                className={`email-history-item ${expandedId === msg._id ? 'is-expanded' : ''} ${msg.status === 'failed' ? 'is-failed' : ''}`}
+              >
+                <button
+                  className="email-history-item__header"
+                  onClick={() => setExpandedId(expandedId === msg._id ? null : msg._id)}
+                >
+                  <div className="email-history-item__meta">
+                    <span className="email-history-item__subject">{msg.subject}</span>
+                    {msg.status === 'failed' && (
+                      <span className="badge badge--error">Failed</span>
+                    )}
+                  </div>
+                  <div className="email-history-item__info">
+                    <span className="email-history-item__sender">
+                      Sent by {msg.senderAdminId?.name || msg.senderEmail}
+                    </span>
+                    <span className="email-history-item__date">{formatDate(msg.createdAt)}</span>
+                  </div>
+                  <span className="email-history-item__chevron">
+                    {expandedId === msg._id ? '▲' : '▼'}
+                  </span>
+                </button>
+
+                {expandedId === msg._id && (
+                  <div className="email-history-item__body">
+                    <p className="email-history-item__body-text">{msg.body}</p>
+                    <p className="email-history-item__body-to">
+                      <strong>To:</strong> {msg.recipientEmail}
+                    </p>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="drawer-footer">
+            <button
+              className="btn btn--ghost btn--sm"
+              onClick={() => setPage((p) => p - 1)}
+              disabled={!pagination.hasPrevPage || status === 'loading'}
+            >
+              ← Previous
+            </button>
+            <span className="pagination-label">
+              Page {pagination.page} of {pagination.totalPages}
+            </span>
+            <button
+              className="btn btn--ghost btn--sm"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={!pagination.hasNextPage || status === 'loading'}
+            >
+              Next →
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default EmailHistoryDrawer;

@@ -1,0 +1,13 @@
+{
+    "port": 7777,
+    "lob": {
+        "pricing": {
+            "standard": 0.99,
+            "first_class": 1.79,
+            "certified": 7.89
+        }
+    },
+    "shippo": {
+        "api_token": ""
+    }
+}

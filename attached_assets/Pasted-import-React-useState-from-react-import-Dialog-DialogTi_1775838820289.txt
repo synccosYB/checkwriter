@@ -1,0 +1,443 @@
+import React, { useState } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Typography,
+  Box,
+  Divider,
+  CircularProgress,
+  Alert,
+  Chip,
+  ToggleButton,
+  ToggleButtonGroup,
+  IconButton,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import PeopleIcon from '@mui/icons-material/People';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import SendIcon from '@mui/icons-material/Send';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { useSendMassEmail } from '../../../API/admin/useSendMassEmail';
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+// Adjust these to match your actual role/subscription values
+const ROLE_OPTIONS = [
+  { value: '', label: 'All Roles' },
+  { value: 'user', label: 'User' },
+  { value: 'admin', label: 'Admin' },
+  { value: 'moderator', label: 'Moderator' },
+];
+
+const SUBSCRIPTION_OPTIONS = [
+  { value: '', label: 'All Statuses' },
+  { value: 'active', label: 'Active' },
+  { value: 'trialing', label: 'Trialing' },
+  { value: 'canceled', label: 'Canceled' },
+  { value: 'past_due', label: 'Past Due' },
+];
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+type Step = 'compose' | 'confirm' | 'success';
+type RecipientScope = 'all' | 'filtered';
+
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  /** Total user count — used for the "All Users" label */
+  totalUserCount?: number;
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
+const MassEmailModal: React.FC<Props> = ({ open, onClose, totalUserCount }) => {
+  const { send, status, result, error, reset } = useSendMassEmail();
+
+  // Form state
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [recipientScope, setRecipientScope] = useState<RecipientScope>('all');
+  const [filterRole, setFilterRole] = useState('');
+  const [filterSubscription, setFilterSubscription] = useState('');
+
+  // Step state
+  const [step, setStep] = useState<Step>('compose');
+
+  // ── Derived ────────────────────────────────────────────────────────────────
+  const isFormValid = subject.trim().length > 0 && body.trim().length > 0;
+  const isLoading = status === 'loading';
+
+  const hasActiveFilters =
+    recipientScope === 'filtered' && (filterRole !== '' || filterSubscription !== '');
+
+  const filterSummaryParts: string[] = [];
+  if (recipientScope === 'filtered') {
+    if (filterRole) {
+      filterSummaryParts.push(
+        `Role: ${ROLE_OPTIONS.find((r) => r.value === filterRole)?.label}`
+      );
+    }
+    if (filterSubscription) {
+      filterSummaryParts.push(
+        `Subscription: ${SUBSCRIPTION_OPTIONS.find((s) => s.value === filterSubscription)?.label}`
+      );
+    }
+  }
+
+  // ── Handlers ───────────────────────────────────────────────────────────────
+  const handleClose = () => {
+    if (isLoading) return;
+    // Reset all state on close
+    setSubject('');
+    setBody('');
+    setRecipientScope('all');
+    setFilterRole('');
+    setFilterSubscription('');
+    setStep('compose');
+    reset();
+    onClose();
+  };
+
+  const handleProceedToConfirm = () => {
+    if (!isFormValid) return;
+    setStep('confirm');
+  };
+
+  const handleBackToCompose = () => {
+    setStep('compose');
+  };
+
+  const handleSend = async () => {
+    const payload = {
+      subject: subject.trim(),
+      body: body.trim(),
+      filter:
+        recipientScope === 'filtered'
+          ? {
+              ...(filterRole ? { role: filterRole } : {}),
+              ...(filterSubscription ? { subscriptionStatus: filterSubscription } : {}),
+            }
+          : {},
+    };
+
+    const data = await send(payload);
+    if (data) {
+      setStep('success');
+    }
+  };
+
+  // ── Recipient count label ──────────────────────────────────────────────────
+  const recipientLabel =
+    step === 'success' && result
+      ? `${result.recipientCount.toLocaleString()} user${result.recipientCount !== 1 ? 's' : ''}`
+      : recipientScope === 'all' && totalUserCount != null
+      ? `All ${totalUserCount.toLocaleString()} users`
+      : recipientScope === 'filtered' && !hasActiveFilters
+      ? 'All users (no filters applied)'
+      : 'Filtered users';
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  return (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 2 } }}
+    >
+      {/* ── Header ── */}
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          pb: 1,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <PeopleIcon fontSize="small" color="primary" />
+          <Typography variant="h6" component="span" fontWeight={600}>
+            Send Mass Email
+          </Typography>
+        </Box>
+        <IconButton
+          size="small"
+          onClick={handleClose}
+          disabled={isLoading}
+          aria-label="Close"
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
+
+      <Divider />
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          STEP: compose
+      ══════════════════════════════════════════════════════════════════════ */}
+      {step === 'compose' && (
+        <>
+          <DialogContent sx={{ pt: 2.5, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            {/* Recipient scope */}
+            <Box>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                gutterBottom
+                sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+              >
+                <FilterListIcon fontSize="inherit" />
+                Recipients
+              </Typography>
+
+              <ToggleButtonGroup
+                value={recipientScope}
+                exclusive
+                onChange={(_, v) => v && setRecipientScope(v)}
+                size="small"
+                sx={{ mb: 1.5 }}
+              >
+                <ToggleButton value="all">All Users</ToggleButton>
+                <ToggleButton value="filtered">Filtered</ToggleButton>
+              </ToggleButtonGroup>
+
+              {/* Filter fields — shown only when "Filtered" is selected */}
+              {recipientScope === 'filtered' && (
+                <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mt: 1 }}>
+                  <FormControl size="small" sx={{ minWidth: 160 }}>
+                    <InputLabel>Role</InputLabel>
+                    <Select
+                      value={filterRole}
+                      label="Role"
+                      onChange={(e) => setFilterRole(e.target.value)}
+                    >
+                      {ROLE_OPTIONS.map((o) => (
+                        <MenuItem key={o.value} value={o.value}>
+                          {o.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl size="small" sx={{ minWidth: 190 }}>
+                    <InputLabel>Subscription Status</InputLabel>
+                    <Select
+                      value={filterSubscription}
+                      label="Subscription Status"
+                      onChange={(e) => setFilterSubscription(e.target.value)}
+                    >
+                      {SUBSCRIPTION_OPTIONS.map((o) => (
+                        <MenuItem key={o.value} value={o.value}>
+                          {o.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
+              )}
+
+              {/* Active filter summary chips */}
+              {hasActiveFilters && (
+                <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mt: 1 }}>
+                  {filterSummaryParts.map((part) => (
+                    <Chip key={part} label={part} size="small" variant="outlined" />
+                  ))}
+                </Box>
+              )}
+            </Box>
+
+            <Divider />
+
+            {/* Subject */}
+            <TextField
+              label="Subject"
+              required
+              fullWidth
+              size="small"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              inputProps={{ maxLength: 255 }}
+              placeholder="e.g. Important update to your account"
+            />
+
+            {/* Body */}
+            <TextField
+              label="Message"
+              required
+              fullWidth
+              multiline
+              rows={7}
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Write your message here…"
+            />
+          </DialogContent>
+
+          <Divider />
+
+          <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
+            <Button onClick={handleClose} color="inherit">
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleProceedToConfirm}
+              disabled={!isFormValid}
+              endIcon={<SendIcon />}
+            >
+              Review &amp; Send
+            </Button>
+          </DialogActions>
+        </>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          STEP: confirm
+      ══════════════════════════════════════════════════════════════════════ */}
+      {step === 'confirm' && (
+        <>
+          <DialogContent sx={{ pt: 2.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/* Recipient count callout */}
+            <Alert
+              severity="info"
+              icon={<PeopleIcon />}
+              sx={{ alignItems: 'center' }}
+            >
+              <Typography variant="body2">
+                This email will be sent to{' '}
+                <strong>{recipientLabel}</strong>.
+                {recipientScope === 'filtered' && !hasActiveFilters && (
+                  <> No filters are active, so all users will receive it.</>
+                )}
+              </Typography>
+            </Alert>
+
+            {/* Summary */}
+            <Box
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 1.5,
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1.5,
+              }}
+            >
+              <Box>
+                <Typography variant="caption" color="text.secondary" display="block">
+                  Subject
+                </Typography>
+                <Typography variant="body2" fontWeight={500}>
+                  {subject}
+                </Typography>
+              </Box>
+              <Divider />
+              <Box>
+                <Typography variant="caption" color="text.secondary" display="block">
+                  Message
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    whiteSpace: 'pre-wrap',
+                    maxHeight: 160,
+                    overflow: 'auto',
+                    color: 'text.secondary',
+                  }}
+                >
+                  {body}
+                </Typography>
+              </Box>
+
+              {hasActiveFilters && (
+                <>
+                  <Divider />
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Filters applied
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 0.75, mt: 0.5, flexWrap: 'wrap' }}>
+                      {filterSummaryParts.map((part) => (
+                        <Chip key={part} label={part} size="small" variant="outlined" />
+                      ))}
+                    </Box>
+                  </Box>
+                </>
+              )}
+            </Box>
+
+            {error && <Alert severity="error">{error}</Alert>}
+          </DialogContent>
+
+          <Divider />
+
+          <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
+            <Button onClick={handleBackToCompose} color="inherit" disabled={isLoading}>
+              ← Back
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSend}
+              disabled={isLoading}
+              startIcon={
+                isLoading ? <CircularProgress size={16} color="inherit" /> : <SendIcon />
+              }
+            >
+              {isLoading ? 'Sending…' : 'Confirm & Send'}
+            </Button>
+          </DialogActions>
+        </>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          STEP: success
+      ══════════════════════════════════════════════════════════════════════ */}
+      {step === 'success' && (
+        <>
+          <DialogContent sx={{ pt: 4, pb: 3 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: 1.5,
+                py: 2,
+              }}
+            >
+              <CheckCircleOutlineIcon
+                sx={{ fontSize: 56, color: 'success.main' }}
+              />
+              <Typography variant="h6" fontWeight={600}>
+                Mass email initiated
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Your message is being sent to{' '}
+                <strong>{recipientLabel}</strong> in the background.
+                Emails are logged and will appear in each user's email history.
+              </Typography>
+            </Box>
+          </DialogContent>
+
+          <Divider />
+
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button variant="contained" onClick={handleClose}>
+              Done
+            </Button>
+          </DialogActions>
+        </>
+      )}
+    </Dialog>
+  );
+};
+
+export default MassEmailModal;

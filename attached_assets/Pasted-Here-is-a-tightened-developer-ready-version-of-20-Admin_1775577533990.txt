@@ -1,0 +1,979 @@
+Here is a tightened developer-ready version of **#20 - Admin Backend APIs — Full System Control**.
+
+---
+
+#20 - Admin Backend APIs — Full System Control
+
+## Objective
+
+Expand the existing admin backend so superadmins have full system-wide control and visibility across all major entities in the platform, not just users, mail batches, and subscriptions.
+
+This task should turn the admin API into a true platform administration layer, with global access to records, configuration, integrations, auditability, and account control.
+
+---
+
+## What & Why
+
+Right now, admin capabilities are too limited for platform operations. Superadmins need the ability to investigate issues, correct records, manage pricing, review integrations, and control account access across the full system.
+
+This work adds:
+
+* Full admin CRUD or read access across all core models
+* Global, non-owner-scoped data access for admins
+* User activation/deactivation controls
+* Platform-wide settings management
+* Mailing price configuration
+* Per-user manual subscription price overrides
+* Full audit visibility and logging for destructive or sensitive admin actions
+
+The goal is to make the backend capable of supporting a real admin portal later, without needing additional backend redesign.
+
+---
+
+## Done looks like
+
+### Global entity administration
+
+Superadmins can list, view, edit, and delete **all checks** across all users, with filtering, search, and pagination.
+
+Superadmins can list, view, edit, and delete **all bank accounts** across all users.
+
+Superadmins can list, view, edit, and delete **all payees** across all users.
+
+Superadmins can list and view **all transactions** across all users.
+
+Superadmins can list, view, edit, and delete **all organizations**.
+
+### Admin observability
+
+Superadmins can view the full **audit log**, with filters for:
+
+* entity type
+* action
+* user
+* date range
+
+Superadmins can view **integration status** across all users for:
+
+* QuickBooks connections
+* Stripe customers / subscriptions
+* Plaid accounts
+
+Superadmins can view:
+
+* all attachments
+* all check import sessions / histories
+
+### Admin configuration
+
+Superadmins can view and update **platform settings** as key-value config.
+
+Superadmins can configure **global mailing prices** through platform settings.
+
+Superadmins can manually configure **per-user subscription price overrides**.
+
+### Account control
+
+Superadmins can activate and deactivate user accounts through a new `is_active` or equivalent status field.
+
+Deactivated users are blocked from authenticating and from using existing sessions if session validation depends on current user state.
+
+### Security and logging
+
+All new endpoints are protected by the existing `adminPrivilage` middleware.
+
+All destructive and sensitive admin actions are logged into `audit_logs`, including:
+
+* deletes
+* status changes
+* price override changes
+* platform setting updates
+* manual record updates by admins where appropriate
+
+---
+
+## Out of scope
+
+* Frontend or admin UI pages
+* Changing existing user management endpoints unless needed for activation support
+* Changing mail batch or impersonation endpoints
+* Introducing new roles beyond the existing superadmin / user model
+* Performing direct upstream mutations against Stripe, QuickBooks, or Plaid APIs
+* Business workflow redesign outside admin access and control
+
+---
+
+## Core implementation rules
+
+### 1) Admin routes must bypass owner scoping
+
+Anywhere current services restrict results to the authenticated owner or organization, admin paths must explicitly bypass those restrictions.
+
+Admin APIs must return cross-user, cross-organization data where relevant.
+
+### 2) Admin routes should be separate from standard user routes
+
+Do not overload normal user endpoints with hidden admin behavior unless the codebase already follows that pattern cleanly.
+
+Prefer explicit admin routes such as:
+
+* `/admin/checks`
+* `/admin/banks`
+* `/admin/payees`
+* `/admin/transactions`
+* `/admin/organizations`
+* `/admin/audit-logs`
+* `/admin/platform-settings`
+* `/admin/integrations`
+* `/admin/attachments`
+* `/admin/check-imports`
+* `/admin/users/:id/activate`
+* `/admin/users/:id/deactivate`
+* `/admin/users/:id/subscription-price-override`
+
+### 3) All list endpoints must support admin-grade browsing
+
+Where applicable, list endpoints should support:
+
+* pagination
+* sorting
+* search
+* filters
+* totals / counts if already part of API patterns
+
+### 4) Sensitive admin actions must be auditable
+
+Every destructive or sensitive change must produce an audit log entry with enough metadata to reconstruct what happened.
+
+At minimum store:
+
+* actor user id
+* action
+* entity type
+* entity id
+* before snapshot or relevant previous values where feasible
+* after snapshot or changed values where feasible
+* timestamp
+
+---
+
+## API scope by entity
+
+## 1. User activation / deactivation
+
+### Requirement
+
+Add an account status mechanism so admins can disable or re-enable user access.
+
+### Data layer
+
+Add `is_active` boolean to `users` table if it does not already exist.
+
+Suggested default:
+
+* `true`
+
+If the system already has a status field, reuse it only if it cleanly supports active/inactive enforcement.
+
+### Admin endpoints
+
+* `PATCH /admin/users/:id/activate`
+* `PATCH /admin/users/:id/deactivate`
+
+Optional:
+
+* `PATCH /admin/users/:id/status`
+
+### Behavior
+
+* Deactivated users cannot log in
+* Deactivated users should also be blocked in auth/session middleware on subsequent requests
+* Existing tokens/sessions should stop working once user status is checked again
+
+### Audit logging
+
+Log activation and deactivation events.
+
+### Acceptance
+
+* Admin can deactivate any non-superadmin user unless there is a business rule preventing peer superadmin actions
+* Deactivated user receives proper unauthorized / inactive-account response
+* Reactivated user can authenticate again
+
+---
+
+## 2. Admin checks API
+
+### Requirement
+
+Superadmins need full control over all checks in the system.
+
+### Endpoints
+
+* `GET /admin/checks`
+* `GET /admin/checks/:id`
+* `PATCH /admin/checks/:id`
+* `DELETE /admin/checks/:id`
+* Optional: `POST /admin/checks/:id/void` if voiding is distinct from delete
+
+### List filters
+
+Support as many of the following as applicable:
+
+* status
+* userId
+* organizationId
+* bankAccountId
+* payeeId
+* dateFrom
+* dateTo
+* amountMin
+* amountMax
+* check number
+* mailing status
+* search term
+
+### Response requirements
+
+Include ownership context:
+
+* user
+* organization
+* bank
+* payee
+
+### Update rules
+
+Allow only fields that are safe for admin correction. If certain fields should never be mutated after printing/mailing, enforce those constraints.
+
+### Delete / void behavior
+
+If a check has downstream dependencies, prefer voiding over hard deletion unless hard deletion is already accepted in the system.
+
+### Audit logging
+
+Log:
+
+* updates
+* deletes
+* voids
+
+### Acceptance
+
+* Admin sees all checks across all users
+* No owner scoping remains on admin endpoint
+* Filtering and pagination work
+* Admin corrections persist correctly
+* Deletes / voids are auditable
+
+---
+
+## 3. Admin banks API
+
+### Requirement
+
+Superadmins need full access to all bank accounts.
+
+### Endpoints
+
+* `GET /admin/banks`
+* `GET /admin/banks/:id`
+* `PATCH /admin/banks/:id`
+* `DELETE /admin/banks/:id`
+
+### Response requirements
+
+Include:
+
+* owning user
+* owning organization if applicable
+* any masked identifying fields already exposed by the system
+
+### Caution
+
+Do not expose raw sensitive values beyond current platform security rules.
+
+### Audit logging
+
+Log:
+
+* updates
+* deletes
+
+### Acceptance
+
+* Admin can browse all banks globally
+* Responses include owner context
+* Sensitive fields remain appropriately protected
+
+---
+
+## 4. Admin payees API
+
+### Requirement
+
+Superadmins need global access to payees across the system.
+
+### Endpoints
+
+* `GET /admin/payees`
+* `GET /admin/payees/:id`
+* `PATCH /admin/payees/:id`
+* `DELETE /admin/payees/:id`
+
+### Response requirements
+
+Include:
+
+* owning user
+* owning organization
+
+### Audit logging
+
+Log:
+
+* updates
+* deletes
+
+### Acceptance
+
+* Admin sees all payees across all users
+* Owner info is included
+* Search/filtering works if current service supports it or can be cleanly extended
+
+---
+
+## 5. Admin transactions API
+
+### Requirement
+
+Superadmins need read visibility into all transactions.
+
+### Endpoints
+
+* `GET /admin/transactions`
+* `GET /admin/transactions/:id`
+
+### Filters
+
+Support as applicable:
+
+* userId
+* organizationId
+* bankAccountId
+* type
+* status
+* amount range
+* date range
+* search
+
+### Response requirements
+
+Include ownership context.
+
+### Important
+
+This is read-only in this task.
+
+### Acceptance
+
+* Admin can inspect transaction history across all users
+* Filters and pagination work
+* No edit/delete endpoints are added unless already supported elsewhere and intentionally included
+
+---
+
+## 6. Admin organizations API
+
+### Requirement
+
+Superadmins need full management of organizations.
+
+### Endpoints
+
+* `GET /admin/organizations`
+* `GET /admin/organizations/:id`
+* `PATCH /admin/organizations/:id`
+* `DELETE /admin/organizations/:id`
+
+### Response requirements
+
+Organization detail should include associated users, or at minimum a linked users list/count.
+
+### Delete caution
+
+If organizations have dependent records, deletion behavior must be explicit:
+
+* hard delete only if safe
+* otherwise soft delete or block delete with clear error
+
+### Audit logging
+
+Log:
+
+* updates
+* deletes
+
+### Acceptance
+
+* Admin can browse all organizations
+* Admin can inspect associated users
+* Delete behavior is safe and predictable
+
+---
+
+## 7. Admin audit logs API
+
+### Requirement
+
+Superadmins need full visibility into audit events across the platform.
+
+### Endpoints
+
+* `GET /admin/audit-logs`
+* Optional: `GET /admin/audit-logs/:id`
+
+### Filters
+
+* entityType
+* action
+* actorUserId
+* targetUserId if supported by schema
+* entityId
+* dateFrom
+* dateTo
+
+### Pagination
+
+Required.
+
+### Acceptance
+
+* Admin can investigate activity by user, date, and entity type
+* Log entries are returned in stable sort order, newest first unless otherwise specified
+
+---
+
+## 8. Platform settings API
+
+### Requirement
+
+Superadmins need a central way to manage key-value platform configuration.
+
+### Endpoints
+
+* `GET /admin/platform-settings`
+* `GET /admin/platform-settings/:key`
+* `PUT /admin/platform-settings/:key` or `POST /admin/platform-settings/upsert`
+
+### Storage
+
+Use `platform_settings` table or equivalent.
+
+Suggested structure:
+
+* key
+* value
+* type or serialization metadata if needed
+* updatedBy
+* updatedAt
+
+### Initial uses
+
+* global mailing prices
+* global operational config
+* future admin-configurable values
+
+### Audit logging
+
+Log settings changes.
+
+### Acceptance
+
+* Admin can read all settings
+* Admin can upsert by key
+* Settings are not duplicated accidentally for same key
+
+---
+
+## 9. Global mailing prices
+
+### Requirement
+
+Mailing prices must be centrally configurable by superadmins.
+
+### Storage
+
+Store inside `platform_settings`.
+
+Suggested keys:
+
+* `mailing_prices.standard`
+* `mailing_prices.expedited`
+* `mailing_prices.international`
+* or one JSON object key such as `mailing_prices`
+
+Choose whichever matches current settings architecture best.
+
+### Endpoints
+
+Can be handled either through generic settings endpoints or dedicated admin route:
+
+* `PUT /admin/platform-settings/mailing-prices`
+  or
+* via generic setting upsert
+
+### Acceptance
+
+* Admin can update mailing prices without code changes
+* The rest of the system can read those values consistently
+
+---
+
+## 10. Per-user subscription price overrides
+
+### Requirement
+
+Superadmins must be able to assign a custom subscription price override at the user level.
+
+### Data layer
+
+Add a user-level override field if one does not already exist, for example:
+
+* `subscription_price_override`
+* optionally currency / billing interval fields if needed
+
+If pricing is more complex, store it in a separate pricing config table.
+
+### Endpoint
+
+* `PATCH /admin/users/:id/subscription-price-override`
+
+Could support:
+
+* set override
+* clear override
+
+### Important
+
+This is an internal platform value only.
+Do not mutate Stripe directly in this task.
+
+### Audit logging
+
+Log:
+
+* previous price
+* new price
+* actor
+
+### Acceptance
+
+* Admin can manually set and remove override values
+* System can distinguish default subscription pricing vs custom override pricing
+
+---
+
+## 11. Integration status APIs
+
+### Requirement
+
+Admins need system-wide visibility into integration connections, but read-only.
+
+### Endpoints
+
+Possible patterns:
+
+* `GET /admin/integrations`
+* `GET /admin/integrations/quickbooks`
+* `GET /admin/integrations/stripe`
+* `GET /admin/integrations/plaid`
+
+### Response should show
+
+For QuickBooks:
+
+* connected / disconnected
+* realm/company id if stored
+* last sync if available
+* owning user/org
+
+For Stripe:
+
+* customer exists
+* subscription status
+* price id / plan reference if stored
+* owning user/org
+
+For Plaid:
+
+* connection status
+* institution name if stored
+* linked account count if available
+* owning user/org
+
+### Important
+
+No mutation endpoints in this task.
+
+### Acceptance
+
+* Admin can inspect connection health/status globally
+* Responses are normalized enough for future admin UI use
+
+---
+
+## 12. Attachments and check import history
+
+### Requirement
+
+Admins need read visibility into uploaded files and import activity.
+
+### Endpoints
+
+* `GET /admin/attachments`
+* `GET /admin/check-imports`
+* Optional:
+
+  * `GET /admin/attachments/:id`
+  * `GET /admin/check-imports/:id`
+
+### Attachments list should include
+
+* owner user
+* organization
+* entity type
+* entity id
+* file name
+* mime type
+* size
+* createdAt
+
+### Check imports list should include
+
+* owner user
+* organization
+* import session id
+* row count
+* success count
+* failure count
+* status
+* createdAt
+
+### Acceptance
+
+* Admin can investigate uploads and imports globally
+* Lists are paginated and filterable where practical
+
+---
+
+## Suggested route structure
+
+```txt
+/admin/users/:id/activate
+/admin/users/:id/deactivate
+/admin/users/:id/subscription-price-override
+
+/admin/checks
+/admin/checks/:id
+/admin/checks/:id/void
+
+/admin/banks
+/admin/banks/:id
+
+/admin/payees
+/admin/payees/:id
+
+/admin/transactions
+/admin/transactions/:id
+
+/admin/organizations
+/admin/organizations/:id
+
+/admin/audit-logs
+
+/admin/platform-settings
+/admin/platform-settings/:key
+/admin/platform-settings/mailing-prices
+
+/admin/integrations
+/admin/integrations/quickbooks
+/admin/integrations/stripe
+/admin/integrations/plaid
+
+/admin/attachments
+/admin/attachments/:id
+
+/admin/check-imports
+/admin/check-imports/:id
+```
+
+---
+
+## Recommended service-layer breakdown
+
+## Controller responsibilities
+
+`api/src/controllers/admin.controller.js`
+
+Should:
+
+* validate request params/query/body
+* call admin service methods
+* return normalized admin responses
+* avoid direct DB logic
+
+## Service responsibilities
+
+`api/src/services/admin.service.js`
+
+Should:
+
+* own global admin queries
+* bypass owner scoping safely
+* compose joins for owner/org info
+* write audit logs for sensitive actions
+* handle filters/pagination/sorting
+
+### Important
+
+Do not scatter admin logic inconsistently across many services unless the codebase already depends on entity services heavily. If reuse is needed, keep admin-specific query behavior explicit.
+
+---
+
+## Middleware / auth requirements
+
+## `adminPrivilage` middleware
+
+All admin routes must continue using the existing admin middleware.
+
+## General auth middleware
+
+Update auth enforcement so deactivated users are blocked.
+
+This likely touches:
+
+* `authorization.middleware.js`
+* any login/session/token validation flow
+* any “get current user” middleware that trusts old tokens without re-checking DB state
+
+### Acceptance
+
+* Deactivated user cannot keep using an old token if middleware revalidates status from DB
+* Admin endpoints remain accessible only to superadmins
+
+---
+
+## Database / schema changes
+
+Likely schema additions:
+
+### `users`
+
+* `is_active boolean not null default true`
+* optional `subscription_price_override numeric(...) null`
+
+### `platform_settings`
+
+If not present, ensure a robust structure exists.
+
+### `audit_logs`
+
+Confirm it can store:
+
+* actor
+* target entity
+* action
+* metadata / change payload
+
+If current schema is too thin, extend it enough to support meaningful admin auditability.
+
+---
+
+## Validation / business rules
+
+### Checks
+
+* Prevent invalid edits to mailed/printed/processed checks unless explicitly allowed
+* Prefer void semantics over destructive delete when financial history matters
+
+### Organizations
+
+* Deletion must not silently orphan data
+
+### Settings
+
+* Values should be type-safe enough to avoid broken config
+* If using JSON, validate shape before saving
+
+### Price overrides
+
+* Reject negative values
+* Clarify whether zero means free or unset
+* Allow explicit clearing of override
+
+---
+
+## Response design guidance
+
+Admin list responses should be consistent.
+
+Suggested shape:
+
+```json
+{
+  "data": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 25,
+    "total": 230
+  }
+}
+```
+
+Detail responses should include enough relational context for the future admin UI to render without extra calls where practical.
+
+---
+
+## Audit logging requirements
+
+The following actions must write audit log entries:
+
+* user activate / deactivate
+* check update / delete / void
+* bank update / delete
+* payee update / delete
+* organization update / delete
+* platform setting upsert
+* subscription price override set / clear
+
+Recommended action naming examples:
+
+* `USER_DEACTIVATED`
+* `USER_ACTIVATED`
+* `CHECK_UPDATED`
+* `CHECK_VOIDED`
+* `CHECK_DELETED`
+* `BANK_UPDATED`
+* `PAYEE_DELETED`
+* `PLATFORM_SETTING_UPDATED`
+* `SUBSCRIPTION_PRICE_OVERRIDE_UPDATED`
+
+---
+
+## Acceptance criteria
+
+## Permissions
+
+* Every new admin endpoint is protected by `adminPrivilage`
+* Non-admin users cannot access any admin routes
+
+## User status
+
+* Admin can activate and deactivate users
+* Deactivated users cannot authenticate or continue using protected endpoints
+
+## Checks
+
+* Admin can globally list, view, edit, and delete/void checks
+* Filters, pagination, and search work
+* Owner scoping is fully removed from admin routes
+
+## Banks
+
+* Admin can globally list, view, edit, and delete banks
+* Owner context is included
+
+## Payees
+
+* Admin can globally list, view, edit, and delete payees
+* Owner context is included
+
+## Transactions
+
+* Admin can globally list and view transactions
+* Filters and pagination work
+
+## Organizations
+
+* Admin can globally list, view, edit, and delete organizations
+* Associated users are visible
+
+## Audit logs
+
+* Admin can query audit logs with filters
+* Sensitive actions appear in logs
+
+## Platform settings
+
+* Admin can list, get, and upsert settings
+* Mailing prices can be managed there
+
+## Integrations
+
+* Admin can view QuickBooks, Stripe, and Plaid connection statuses across all users
+
+## Attachments / imports
+
+* Admin can list all attachments and check import sessions globally
+
+## Pricing
+
+* Admin can update global mailing prices
+* Admin can set and clear user-level subscription price overrides
+
+---
+
+## Relevant files
+
+* `api/src/controllers/admin.controller.js`
+* `api/src/services/admin.service.js`
+* `api/src/controllers/main.controller.js`
+* `api/src/middlewares/adminPrivilage.middleware.ts`
+* `api/src/middlewares/authorization.middleware.js`
+* `api/src/db/schema.ts`
+* `api/src/services/checks.service.js`
+* `api/src/services/users.service.js`
+* `api/src/services/banks.service.js`
+* `api/src/services/payees.service.js`
+* `api/src/services/transactions.service.js`
+
+---
+
+## Suggested implementation order
+
+### Phase 1 — foundation
+
+* schema updates
+* user `is_active`
+* auth enforcement
+* audit logging improvements if needed
+* platform settings support
+
+### Phase 2 — core admin entities
+
+* checks
+* banks
+* payees
+* transactions
+* organizations
+
+### Phase 3 — platform observability
+
+* audit logs
+* integrations
+* attachments
+* check import history
+
+### Phase 4 — pricing controls
+
+* mailing prices
+* per-user subscription overrides
+
+---
+
+## Developer note
+
+This task is not just “more endpoints.” It is the foundation of a real superadmin control plane. The implementation should be structured cleanly enough that a future admin UI can sit directly on top of these APIs without backend rewrites.
+
+If you want, I can also turn this into a **developer handoff version with exact endpoint contracts, request/response examples, and schema change notes**.

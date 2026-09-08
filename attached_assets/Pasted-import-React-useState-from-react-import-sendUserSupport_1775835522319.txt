@@ -1,0 +1,139 @@
+import React, { useState } from 'react';
+import { sendUserSupportEmail } from '../../../API/admin/adminClient';
+
+/**
+ * Modal dialog for composing and sending a support email to a user.
+ *
+ * Props:
+ *   user     – { _id, email, name } – the recipient
+ *   onClose  – callback to close the modal
+ */
+const SendEmailModal = ({ user, onClose }) => {
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [status, setStatus] = useState('idle'); // idle | loading | success | error
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const isValid = subject.trim().length > 0 && body.trim().length > 0;
+
+  const handleSubmit = async () => {
+    if (!isValid || status === 'loading') return;
+    setStatus('loading');
+    setErrorMessage('');
+
+    try {
+      await sendUserSupportEmail(user._id, { subject: subject.trim(), body: body.trim() });
+      setStatus('success');
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message || 'Failed to send email. Please try again.';
+      setErrorMessage(msg);
+      setStatus('error');
+    }
+  };
+
+  const handleClose = () => {
+    if (status === 'loading') return;
+    onClose(status === 'success'); // pass true if a message was sent (to trigger history refresh)
+  };
+
+  return (
+    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && handleClose()}>
+      <div className="modal-container send-email-modal">
+        {/* Header */}
+        <div className="modal-header">
+          <h2 className="modal-title">Send Support Email</h2>
+          <button
+            className="modal-close-btn"
+            onClick={handleClose}
+            disabled={status === 'loading'}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        {status === 'success' ? (
+          /* ── Success state ── */
+          <div className="modal-body">
+            <div className="email-success">
+              <span className="email-success-icon">✓</span>
+              <p>Email sent successfully to <strong>{user.email}</strong>.</p>
+            </div>
+          </div>
+        ) : (
+          /* ── Compose form ── */
+          <div className="modal-body">
+            <div className="form-field">
+              <label className="form-label">To</label>
+              <input
+                type="text"
+                className="form-input form-input--disabled"
+                value={`${user.name || ''} <${user.email}>`}
+                disabled
+                readOnly
+              />
+            </div>
+
+            <div className="form-field">
+              <label className="form-label" htmlFor="email-subject">
+                Subject <span className="required">*</span>
+              </label>
+              <input
+                id="email-subject"
+                type="text"
+                className="form-input"
+                placeholder="e.g. Re: Your account question"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                maxLength={255}
+                disabled={status === 'loading'}
+              />
+            </div>
+
+            <div className="form-field">
+              <label className="form-label" htmlFor="email-body">
+                Message <span className="required">*</span>
+              </label>
+              <textarea
+                id="email-body"
+                className="form-textarea"
+                placeholder="Write your message here..."
+                rows={8}
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                disabled={status === 'loading'}
+              />
+            </div>
+
+            {status === 'error' && (
+              <p className="form-error">{errorMessage}</p>
+            )}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="modal-footer">
+          <button
+            className="btn btn--secondary"
+            onClick={handleClose}
+            disabled={status === 'loading'}
+          >
+            {status === 'success' ? 'Close' : 'Cancel'}
+          </button>
+          {status !== 'success' && (
+            <button
+              className="btn btn--primary"
+              onClick={handleSubmit}
+              disabled={!isValid || status === 'loading'}
+            >
+              {status === 'loading' ? 'Sending…' : 'Send Email'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SendEmailModal;

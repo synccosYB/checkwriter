@@ -1,0 +1,44 @@
+{
+    "industries": [
+        {
+            "name": "Information Technology",
+            "value": "information technology"
+        },
+        {
+            "name": "Healthcare",
+            "value": "healthcare"
+        },
+        {
+            "name": "Automotive",
+            "value": "automotive"
+        },
+        {
+            "name": "Hospitality",
+            "value": "hospitality"
+        },
+        {
+            "name": "Financial Services",
+            "value": "financial services"
+        },
+        {
+            "name": "Education",
+            "value": "education"
+        },
+        {
+            "name": "Energy",
+            "value": "energy"
+        },
+        {
+            "name": "Entertainment",
+            "value": "entertainment"
+        },
+        {
+            "name": "Manufacturing",
+            "value": "manufacturing"
+        },
+        {
+            "name": "Agriculture",
+            "value": "agriculture"
+        }
+    ]
+}

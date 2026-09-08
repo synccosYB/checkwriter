@@ -1,0 +1,218 @@
+.print-container {
+  width: 80%;
+  margin: 5rem auto 0;
+}
+
+.check-body {
+  background: #fff;
+  font-family: Inter;
+}
+
+.check-body .user-info {
+  margin: 15px 0px 0 30px;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-body .user-info p {
+  margin: 0;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-body .user-info p.user-name {
+  font-size: 12px;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-body .user-info p.address-info {
+  font-size: 10px;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-body h1.bank-name-header {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 18px 0 0;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-body .background-div {
+  background: #5ea479;
+  position: relative;
+  padding: 12px 100px 12px 25px;
+  -webkit-clip-path: polygon(0 0, 100% 0, 100% 75vh, 0 100%);
+  clip-path: polygon(60px 0, 100% 0, 100% 100%, 0 100%);
+  color: #fff;
+  font-family: Inter;
+}
+
+.check-body .background-div .background {
+  font-size: 12px;
+}
+
+.check-body .check-date {
+  margin-right: 30px;
+  font-size: 10px;
+  font-family: Inter;
+  color: #5ea479;
+  margin-bottom: 0;
+}
+
+.check-body .check-date span {
+  width: 100px;
+  border-bottom: 1px solid #5ea479;
+  text-align: center;
+  font-family: Inter;
+  color: #5ea479;
+  margin-left: 5px;
+}
+
+.check-body .payee-amount-div {
+  align-items: end !important;
+  margin: 15px 30px 0;
+  font-size: 12px;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-body .payee-amount-div p.pay-order-txt {
+  margin-bottom: 0;
+  font-size: 10px;
+  width: 15%;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-body .payee-amount-div p {
+  font-size: 10px;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-body .payee-amount-div .pay-person p {
+  border-bottom: 1px solid #5ea479;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-body .payee-amount-div .pay-person .payee-name span.dollar-sign {
+  font-size: 20px;
+  margin: 0 10px;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-body .payee-amount-div .pay-person .payee-name p {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: Inter;
+  color: #5ea479;
+  margin-left: 5px;
+}
+
+.diagnol-box {
+  font-size: 12px;
+  border: 2px solid #5ea479;
+  font-weight: 600;
+  padding: 8px 35px;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.check-number {
+  margin-bottom: 15px;
+  font-family: 'MICR';
+  font-size: 24px !important;
+  color: #5ea479;
+  margin: 0;
+}
+
+.signature-div {
+  margin: 0 30px 20px 0;
+  text-align: center;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.signature-div .signature-box {
+  background-color: #fff;
+  border-bottom: 1px solid #5ea479;
+  height: 35px;
+  width: 250px;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.signature-div p {
+  margin: 0;
+  font-size: 10px;
+  font-family: Inter;
+  color: #5ea479;
+  margin-bottom: 0;
+}
+
+.memo-div {
+  margin-top: 0px;
+  margin-left: 30px;
+  font-size: 12px;
+  margin-bottom: 10px;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.text-amount-div {
+  margin: 15px 30px 0;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.text-amount-div .text-amount {
+  width: 100%;
+  border-bottom: 1px solid #5ea479;
+  margin: 0;
+  font-family: Inter;
+  color: #5ea479;
+  font-size: 12px;
+}
+
+.text-amount-div .dollar-txt {
+  font-size: 10px;
+  margin: 0 10px 0px;
+  text-transform: uppercase;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.text-amount-div .security-txt {
+  font-size: 8px;
+  margin: 0;
+  margin-left: 5px;
+  font-family: Inter;
+  color: #5ea479;
+}
+
+.text-amount-div .security-txt-div {
+  width: 100px;
+  color: #5ea479;
+}
+.middle-section-check {
+  display: block;
+  margin: 7rem 0 !important;
+}
+.middle-section-check p {
+  font-family: Inter !important;
+  color: #5ea479 !important;
+}
+.lower-section-check {
+  display: block;
+  padding: 0 2rem !important;
+  margin-top: 4rem !important;
+}
+.lower-section-check p {
+  font-family: Inter !important;
+  color: #5ea479 !important;
+}
