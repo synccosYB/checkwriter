@@ -42,6 +42,7 @@ import { USER_ROLES } from '../constants/index.js';
 import { addMailchimpContactWithTag } from '../services/mailChimpService.js';
 import { createDemoAccount } from '../services/demo.service.js';
 import { getVerificationStatusByEmail } from '../services/verification.service.js';
+import { getPasswordResetUrl } from '../utils/password-reset-url.util.js';
 
 const router = express.Router();
 
@@ -564,7 +565,7 @@ router.post('/reset-password', authorization, async (req, res, next) => {
 
 router.post('/forgot-password', async (req, res, next) => {
   try {
-    const { email, domain } = req.body;
+    const { email } = req.body;
     if (!email) {
       throw new Error('Missing Query parameter - email');
     }
@@ -578,26 +579,7 @@ router.post('/forgot-password', async (req, res, next) => {
     const tokenPayload = { userId: userDetails._id.toString() };
     const accessToken = generateToken(tokenPayload, 900);
 
-    const allowedOrigins = [
-      process.env.CLIENT_URL,
-      process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : null,
-      'https://app.synccos.com',
-      'http://localhost:3000',
-      'http://localhost:5000',
-    ].filter(Boolean);
-
-    let safeDomain = allowedOrigins[0] || 'https://app.synccos.com';
-    if (domain) {
-      try {
-        const parsed = new URL(domain);
-        if (allowedOrigins.includes(parsed.origin)) {
-          safeDomain = parsed.origin;
-        }
-      } catch (e) {
-      }
-    }
-
-    const url = `${safeDomain}/auth/reset-password?token=${accessToken.toString()}`;
+    const url = getPasswordResetUrl(accessToken);
     await sendForgotPasswordMail(email, url);
 
     return res

@@ -7,11 +7,7 @@ function useForgetPassword() {
 	const dispatch = useDispatch()
 	return useMutation({
 		mutationKey: ['forget password'],
-		mutationFn: (body) =>
-			authClient.post(`/forgot-password`, {
-				...body,
-				domain: window.location.origin
-			}),
+		mutationFn: (body) => authClient.post(`/forgot-password`, body),
 		onSuccess: () => {
 			dispatch(
 				updateSnackbar({
