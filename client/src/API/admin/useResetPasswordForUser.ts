@@ -9,9 +9,7 @@ function useResetPasswordForUser() {
 	return useMutation({
 		mutationKey: [`reset a user's passoword`],
 		mutationFn: ({ id }: { id: string }) =>
-			adminClient.post(`/users/${id}/reset-password`, {
-				domain: window.location.origin
-			}),
+			adminClient.post(`/users/${id}/reset-password`),
 		onSuccess: () => {
 			dispatch(
 				updateSnackbar({
