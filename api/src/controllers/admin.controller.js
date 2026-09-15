@@ -76,6 +76,7 @@ import SubscriptionService from '../services/stripe.service.js';
 import { CHECK_MAILED_STATUS } from '../enums/checks.enum.js';
 import { generateToken } from '../utils/jwt.util.js';
 import { sendForgotPasswordMail, sendAdminSupportEmail, sendRefundReceiptEmail } from '../services/email.service.js';
+import { getPasswordResetUrl } from '../utils/password-reset-url.util.js';
 import { adminSupportEmailTemplate } from '../utils/email-templates.util.js';
 import moment from 'moment';
 import { StripeSubscriptionWebhookService } from '../services/stripeWebhook.service.js';
@@ -1858,7 +1859,6 @@ router.post('/update-trial-end-date/:userId', async (req, res) => {
 router.post('/users/:id/reset-password', async (req, res) => {
   try {
     const { id } = req.params;
-    const { domain } = req.body;
 
     const user = await usersCollection.findById(id);
     if (!user) throw new Error('User not found');
@@ -1866,7 +1866,7 @@ router.post('/users/:id/reset-password', async (req, res) => {
     const tokenPayload = { userId: user?._id.toString() };
     const accessToken = generateToken(tokenPayload, 900);
 
-    const url = `${domain}/auth/reset-password?token=${accessToken.toString()}`;
+    const url = getPasswordResetUrl(accessToken);
 
     await sendForgotPasswordMail(user?.email, url);
 
@@ -2079,12 +2079,10 @@ router.post('/register-user', async (req, res, next) => {
     await addDefaultMfaMethod({ userId: user._id, email: user.email });
     await addDefaultTags(user._id);
 
-    const resetDomain = process.env.FRONTEND_URL || 'http://localhost:3000';
-
     if (sendPasswordSetupEmail) {
       const tokenPayload = { userId: user._id.toString() };
       const accessToken = generateToken(tokenPayload, 900);
-      const url = `${resetDomain}/auth/reset-password?token=${accessToken}`;
+      const url = getPasswordResetUrl(accessToken);
       await sendForgotPasswordMail(email, url);
     }
 
