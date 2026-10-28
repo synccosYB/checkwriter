@@ -79,10 +79,8 @@ import { sendForgotPasswordMail, sendAdminSupportEmail, sendRefundReceiptEmail }
 import { getPasswordResetUrl } from '../utils/password-reset-url.util.js';
 import { adminSupportEmailTemplate } from '../utils/email-templates.util.js';
 import moment from 'moment';
-import { StripeSubscriptionWebhookService } from '../services/stripeWebhook.service.js';
 import config from 'config';
 import Stripe from 'stripe';
-import { addMailchimpContactWithTag } from '../services/mailChimpService.js';
 import {
   migrateSignaturesToAttachments,
   rollbackSignatureMigration,
@@ -94,7 +92,7 @@ import {
 } from '../services/adminScheduledJobs.service.js';
 
 const {
-  stripe_subscription: { stripe_secret_key, checkwriter_product_id },
+  stripe_subscription: { stripe_secret_key },
 } = config;
 
 export const stripe = new Stripe(stripe_secret_key);
@@ -1944,102 +1942,23 @@ router.get('/totalSignups', async (req, res, next) => {
  *                   type: string
  */
 router.put('/refreshSuscription', async (req, res, next) => {
-  const { userId, updateAll } = req.body;
-
-  const usersToUpdate = [];
-
-  if (updateAll) {
-    const userIds = await usersSubscriptionCollection.distinct('userId');
-    usersToUpdate.push(...userIds);
-  } else if (userId) {
-    usersToUpdate.push(userId);
-  } else {
-    return res.status(400).json({ message: 'Missing userId' });
-  }
-
-  const result = {
-    success: [],
-    failed: [],
-  };
-
-  for (const userId of usersToUpdate) {
-    try {
-      const userSub = await usersSubscriptionCollection
-        .findOne({ userId })
-        .lean();
-
-      let sub = null;
-
-      if (userSub && userSub.stripeCustomerId && userSub.stripeSubscriptionId) {
-        try {
-          sub = await SubscriptionService.retrieveStripeSubscription(
-            userSub.stripeSubscriptionId
-          );
-        } catch (error) {
-          if (error.code !== 'resource_missing') {
-            throw error;
-          }
-        }
+  try {
+    const { userId, updateAll } = req.body;
+    if (!updateAll && !userId) return res.status(400).json({ message: 'Missing userId' });
+    // Include users whose webhook never created a subscription row.
+    const userIds = updateAll ? await usersCollection.distinct('_id') : [userId];
+    const result = { success: [], failed: [] };
+    for (const id of userIds) {
+      try {
+        result.success.push(await SubscriptionService.refreshSubscription({ userId: id }));
+      } catch (error) {
+        result.failed.push({ userId: id, error: error.message || 'Failed to update subscription' });
       }
-
-      if (!sub) {
-        const user = await usersCollection.findOne({ _id: userId }).lean();
-
-        sub = await SubscriptionService.findStripeSubscriptionByEmail({
-          email: user.email,
-        });
-
-        if (sub) {
-          await usersSubscriptionCollection.findOneAndUpdate(
-            { userId: user?._id },
-            {
-              stripeCustomerId: sub.customer,
-              stripeSubscriptionId: sub.id,
-            },
-            { upsert: true, new: true }
-          );
-        }
-      }
-
-      if (sub) {
-        await new StripeSubscriptionWebhookService(
-          stripe,
-          checkwriter_product_id
-        ).updateSubscriptionInDatabase(sub);
-
-        result.success.push({
-          userId,
-          message: 'Subscription updated successfully',
-        });
-      } else {
-        const user = await usersCollection.findOne({ _id: userId }).lean();
-        await addMailchimpContactWithTag({
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          tag: userSub?.status
-            ? userSub?.mode == 'paid'
-              ? 'Subscription'
-              : 'Trial'
-            : 'Sign ups',
-          subscriptionTag: userSub?.status ? 'Canceled' : '',
-        });
-
-        result.failed.push({
-          userId,
-          error: 'No subscription found for this user',
-        });
-      }
-    } catch (error) {
-      console.error(`Error updating subscription for user ${userId}:`, error);
-      result.failed.push({
-        userId,
-        error: error.message || 'Failed to update subscription',
-      });
     }
+    res.status(200).send(result);
+  } catch (error) {
+    next(error);
   }
-
-  res.status(200).send(result);
 });
 
 router.post('/register-user', async (req, res, next) => {
