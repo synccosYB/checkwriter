@@ -1118,9 +1118,10 @@ router.get('/user/groups', async (req, res, next) => {
     const organizationId = req.organizationId;
     const groups = await getGroupsById(userId, organizationId);
     const tags = await getTagsByUserId(userId, organizationId);
-    const tagsObject = Object.fromEntries(tags);
+    // Empty accounts legitimately have no groups or tags yet.
+    const tagsObject = Object.fromEntries(tags ?? []);
 
-    const groupsArray = [...groups.values()];
+    const groupsArray = [...(groups?.values() ?? [])];
 
     const groupsWithTags = groupsArray.map((group) => {
       const tagsInGroup = [];
