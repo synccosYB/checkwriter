@@ -4,6 +4,8 @@ import config from 'config';
 
 import { SubscriptionService, stripe } from '../stripe.service.js';
 import {
+  StripeCustomersCollection,
+  StripeSubscriptionsCollection,
   auditLogsCollection,
   usersCollection,
   usersSubscriptionCollection,
@@ -19,6 +21,7 @@ const DAY = 24 * 60 * 60 * 1000;
 function thenable(doc) {
   const p = Promise.resolve(doc);
   p.lean = () => Promise.resolve(doc);
+  p.select = () => p;
   return p;
 }
 
@@ -51,6 +54,9 @@ function stripeSub({
 let subRow; // row returned by usersSubscriptionCollection.findOne
 let dbWrites; // capture of findOneAndUpdate calls
 
+const origLegacyFindOne = StripeCustomersCollection.findOne;
+const origLegacyUpdate = StripeCustomersCollection.findOneAndUpdate;
+const origLegacySubUpdate = StripeSubscriptionsCollection.updateOne;
 const origSubFindOne = usersSubscriptionCollection.findOne;
 const origSubFindOneAndUpdate = usersSubscriptionCollection.findOneAndUpdate;
 const origUserFindOne = usersCollection.findOne;
@@ -65,6 +71,9 @@ const origPricesRetrieve = stripe.prices.retrieve;
 
 function installMocks() {
   dbWrites = [];
+  StripeCustomersCollection.findOne = () => thenable(null);
+  StripeCustomersCollection.findOneAndUpdate = async () => null;
+  StripeSubscriptionsCollection.updateOne = async () => ({});
   usersSubscriptionCollection.findOne = () => thenable(subRow);
   usersSubscriptionCollection.findOneAndUpdate = (filter, update, opts) => {
     dbWrites.push({ filter, update, opts });
@@ -77,6 +86,9 @@ function installMocks() {
 }
 
 function restoreMocks() {
+  StripeCustomersCollection.findOne = origLegacyFindOne;
+  StripeCustomersCollection.findOneAndUpdate = origLegacyUpdate;
+  StripeSubscriptionsCollection.updateOne = origLegacySubUpdate;
   usersSubscriptionCollection.findOne = origSubFindOne;
   usersSubscriptionCollection.findOneAndUpdate = origSubFindOneAndUpdate;
   usersCollection.findOne = origUserFindOne;
@@ -358,7 +370,7 @@ test('canceled -> trial: creates new Stripe sub, syncs DB row, status becomes Tr
   // DB row must have been synced with the NEW subscription
   assert.equal(dbWrites.length, 1);
   const $set = dbWrites[0].update.$set;
-  assert.equal(dbWrites[0].filter.stripeCustomerId, 'cus_1');
+  assert.equal(dbWrites[0].filter.userId, 'u1');
   assert.equal($set.stripeSubscriptionId, 'sub_new');
   assert.equal($set.status, 'trialing');
   assert.equal($set.isTrialing, true);
