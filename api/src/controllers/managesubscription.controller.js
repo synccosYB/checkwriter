@@ -463,7 +463,7 @@ router.post('/webhook', async (req, res, next) => {
     if (error?.code === 'STRIPE_SIGNATURE_VERIFICATION_FAILED') {
       res.status(400).send({ error: error?.message });
     } else {
-      res.status(200).send({ received: true, error: 'internal processing error logged' });
+      res.status(500).send({ received: false, error: 'Subscription processing failed; retry required' });
     }
   }
 });

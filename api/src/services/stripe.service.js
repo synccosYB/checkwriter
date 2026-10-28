@@ -204,7 +204,8 @@ export class SubscriptionService {
       (sub.cancelDate ? !!sub.currentPeriodEnd : false)
     );
 
-    const hasAccess = effectiveEndDate ? now < effectiveEndDate : true;
+    const hasAccess = Boolean(isCurrentPeriodActive) &&
+      (!effectiveEndDate || now < effectiveEndDate);
     const isSubscribed = sub.status === 'active' && hasAccess && !isTrialPeriod;
     const isActive = hasAccess && (isTrialPeriod || sub.status === 'active');
     const hasFullAccessOverride = Boolean(sub.fullAccessOverrideEnabled);
@@ -392,34 +393,66 @@ export class SubscriptionService {
     }
   }
 
-  static async findStripeSubscriptionByEmail({ email }) {
-    const { data: customers } = await stripe.customers.list({
-      email,
-      limit: 10,
-    });
-    if (!customers.length) return null;
-
-    for (const c of customers) {
-      const subs = await stripe.subscriptions.list({
-        customer: c.id,
-        limit: 10,
+  static async findStripeSubscriptionByEmail({ email, customerId }) {
+    if (!checkwriter_product_id) throw new Error('Check Writer product is not configured');
+    const matches = [];
+    let startingAfter;
+    do {
+      const page = await stripe.customers.list({
+        email: email.trim().toLowerCase(), limit: 100,
+        ...(startingAfter ? { starting_after: startingAfter } : {}),
       });
+      for (const customer of page.data) {
+        let afterSubscription;
+        do {
+          const subs = await stripe.subscriptions.list({
+            customer: customer.id, status: 'all', limit: 100,
+            ...(afterSubscription ? { starting_after: afterSubscription } : {}),
+          });
+          matches.push(...subs.data.filter((sub) =>
+            ['active', 'trialing'].includes(sub.status) &&
+            sub.items.data.some((item) =>
+              (typeof item.price.product === 'string'
+                ? item.price.product : item.price.product?.id) === checkwriter_product_id
+            )
+          ));
+          afterSubscription = subs.has_more ? subs.data.at(-1)?.id : null;
+        } while (afterSubscription);
+      }
+      startingAfter = page.has_more ? page.data.at(-1)?.id : null;
+    } while (startingAfter);
+    // Prefer a paid subscription over a leftover trial. Never guess between
+    // multiple paying customers sharing an email address.
+    const paid = matches.filter((sub) => sub.status === 'active');
+    const candidates = paid.length ? paid : matches;
+    const linked = candidates.filter((sub) => sub.customer === customerId);
+    const choices = linked.length ? linked : candidates;
+    if (choices.length > 1) throw new Error('Multiple subscriptions found; account linking requires review');
+    return choices[0] || null;
+  }
 
-      const activeNow = subs.data.filter((sub) =>
-        ["active", "trialing"].includes(sub.status)
-      );
-
-      const matchedSub = activeNow.find((s) =>
-        s.items.data.some((it) => {
-          const prodId = it.price?.product;
-          return prodId === checkwriter_product_id;
-        })
-      );
-
-      if (matchedSub) return matchedSub;
+  static async refreshSubscription({ userId }) {
+    const user = await usersCollection.findOne({ _id: userId }).lean();
+    if (!user) throw new Error('User not found');
+    const current = await usersSubscriptionCollection.findOne({ userId }).lean();
+    let stored = null;
+    if (current?.stripeSubscriptionId) {
+      try {
+        stored = await stripe.subscriptions.retrieve(current.stripeSubscriptionId);
+      } catch (error) {
+        if (error.code !== 'resource_missing') throw error;
+      }
     }
-
-    return null;
+    // A canceled or incomplete old subscription must not hide a new payment.
+    const subscription = await this.findStripeSubscriptionByEmail({
+      email: user.email, customerId: current?.stripeCustomerId,
+    }) || stored;
+    if (!subscription) throw new Error('No subscription found for this user');
+    const service = new StripeSubscriptionWebhookService(stripe, checkwriter_product_id);
+    const result = await service.updateSubscriptionInDatabase(subscription, { userId });
+    if (!result) throw new Error('Subscription did not match the configured Check Writer product');
+    return { userId, message: 'Subscription updated successfully',
+      hasFullAccessOverride: Boolean(result.fullAccessOverrideEnabled) };
   }
 
   static async startSubscriptionSession({ userId, redirectUrl }) {

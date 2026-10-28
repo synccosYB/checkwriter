@@ -10,7 +10,7 @@ import {
   updateOneBySubscriptionId,
   updateSubscriptionByStripeCustomerId,
 } from '../models/stripesubscription.model.js';
-import { updateStripeCustomers } from '../models/stripecustomers.model.js';
+import { findOneByFilter, updateStripeCustomers } from '../models/stripecustomers.model.js';
 import { updateUser } from '../models/users.model.js';
 import {
   subscriptionPaymentReceivedEmail,
@@ -48,23 +48,27 @@ export class StripeSubscriptionWebhookService {
   }
 
   private async handleSubscriptionCreated(event: Stripe.Event) {
-    const subscription = event.data.object as Stripe.Subscription;
-    await this.ensureSingleActiveSubscription(
-      subscription.customer as string,
-      subscription.id
-    );
-    await this.updateSubscriptionInDatabase(subscription);
+    const snapshot = event.data.object as Stripe.Subscription;
+    const subscription = await this.stripe.subscriptions.retrieve(snapshot.id);
+    const result = await this.updateSubscriptionInDatabase(subscription);
+    if (result?.stripeSubscriptionId === subscription.id && subscription.status === 'active') {
+      await this.ensureSingleActiveSubscription(
+        subscription.customer as string, subscription.id, subscription.created
+      );
+    }
     return { processed: true };
   }
 
   private async handleSubscriptionUpdated(event: Stripe.Event) {
-    const subscription = event.data.object as Stripe.Subscription;
+    const snapshot = event.data.object as Stripe.Subscription;
+    const subscription = await this.stripe.subscriptions.retrieve(snapshot.id);
     await this.updateSubscriptionInDatabase(subscription);
     return { processed: true };
   }
 
   private async handleSubscriptionDeleted(event: Stripe.Event) {
-    const subscription = event.data.object as Stripe.Subscription;
+    const snapshot = event.data.object as Stripe.Subscription;
+    const subscription = await this.stripe.subscriptions.retrieve(snapshot.id);
 
     await this.updateSubscriptionInDatabase(subscription);
     return { processed: true };
@@ -72,7 +76,8 @@ export class StripeSubscriptionWebhookService {
 
   private async ensureSingleActiveSubscription(
     customerId: string,
-    currentSubscriptionId: string
+    currentSubscriptionId: string,
+    currentCreated: number
   ) {
     const subscriptions = await this.getActiveCheckWriterSubscriptions(
       customerId
@@ -81,7 +86,7 @@ export class StripeSubscriptionWebhookService {
     // Cancel all except the current one
     await Promise.all(
       subscriptions
-        .filter((sub) => sub.id !== currentSubscriptionId)
+        .filter((sub) => sub.id !== currentSubscriptionId && sub.created < currentCreated)
         .map((sub) => this.stripe.subscriptions.cancel(sub.id))
     );
   }
@@ -111,30 +116,74 @@ export class StripeSubscriptionWebhookService {
     );
   }
 
-  public async updateSubscriptionInDatabase(subscription: Stripe.Subscription) {
-    const isCheckWriterSubscription = subscription.items.data.some(
-      (item) => item.price.product === this.productId
+  public async updateSubscriptionInDatabase(
+    subscription: Stripe.Subscription,
+    { userId: requestedUserId }: { userId?: string } = {}
+  ) {
+    const item = subscription.items.data.find((item) =>
+      (typeof item.price.product === 'string' ? item.price.product : item.price.product?.id) === this.productId
     );
-    if (!isCheckWriterSubscription) return;
-
+    if (!item || !this.productId) return null;
+    const customerId = typeof subscription.customer === 'string'
+      ? subscription.customer : subscription.customer.id;
+    const existing = await usersSubscriptionCollection.findOne({ stripeCustomerId: customerId, userId: { $ne: null } });
+    let userId = existing?.userId || requestedUserId || subscription.metadata?.userId;
+    if (requestedUserId && existing?.userId && String(existing.userId) !== String(requestedUserId)) {
+      throw new Error('Stripe customer is already linked to a different user');
+    }
+    if (!userId) {
+      const legacy = await findOneByFilter({ stripeCustomerId: customerId });
+      userId = legacy?.userId;
+    }
+    // Do not create an ownerless row. Admin refresh can recover older accounts
+    // by verified email lookup and pass the selected application user explicitly.
+    if (!userId) throw new Error('Subscription has no linked user; refresh the user subscription');
+    if (!existing?.userId) {
+      const user = await usersCollection.findOne({ _id: userId });
+      if (!user) throw new Error('Subscription user was not found');
+    }
+    const linked = await usersSubscriptionCollection.findOne({ userId });
+    if (linked?.stripeSubscriptionId && linked.stripeSubscriptionId !== subscription.id) {
+      let current;
+      try {
+        current = await this.stripe.subscriptions.retrieve(linked.stripeSubscriptionId);
+      } catch (error) {
+        if (error.code !== 'resource_missing') throw error;
+      }
+      // Late cancellation/failure of an older trial must not revoke a newer plan.
+      if (current && ['active', 'trialing'].includes(current.status) &&
+          (!['active', 'trialing'].includes(subscription.status) ||
+           (current.status === 'active' && subscription.status === 'trialing') ||
+           current.created > subscription.created)) return linked;
+    }
+    // Stripe Basil moved the billing period onto subscription items.
+    const periodItem = item as Stripe.SubscriptionItem & {
+      current_period_start?: number; current_period_end?: number;
+    };
+    const periodStart = periodItem.current_period_start ?? subscription.current_period_start;
+    const periodEnd = periodItem.current_period_end ?? subscription.current_period_end;
+    if (!Number.isFinite(periodStart) || !Number.isFinite(periodEnd)) {
+      throw new Error('Subscription billing period is missing');
+    }
     const now = new Date();
-    const isActive =
-      ['active', 'trialing'].includes(subscription.status) &&
-      now <= new Date(subscription.current_period_end * 1000);
+    const isActive = ['active', 'trialing'].includes(subscription.status) &&
+      now <= new Date(periodEnd * 1000);
 
     var result = await usersSubscriptionCollection.findOneAndUpdate(
-      { stripeCustomerId: subscription.customer },
+      { userId },
       {
         $set: {
+          userId,
+          stripeCustomerId: customerId,
           stripeSubscriptionId: subscription.id,
           status: subscription.status,
           isSubscribed: subscription.status === 'active',
           isActive,
           isTrialing: subscription.status === 'trialing',
           currentPeriodStart: new Date(
-            subscription.current_period_start * 1000
+            periodStart * 1000
           ),
-          currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          currentPeriodEnd: new Date(periodEnd * 1000),
           // Keep trialEndDate in sync with Stripe. Clearing it when there is
           // no trial prevents a stale trialEndDate from a previous trial
           // making getSubscriptionDetails treat a fresh trial as expired.
@@ -142,12 +191,13 @@ export class StripeSubscriptionWebhookService {
             ? new Date(subscription.trial_end * 1000)
             : null,
           cancelAtPeriodEnd: subscription.cancel_at_period_end,
+          cancelAt: subscription.cancel_at ? new Date(subscription.cancel_at * 1000) : null,
           cancelDate: subscription.canceled_at
             ? new Date(subscription.canceled_at * 1000)
             : null,
           subscriptionPrice: {
-            price: subscription.items.data[0].price.unit_amount / 100,
-            currency: 'usd',
+            price: (item.price.unit_amount ?? 0) / 100,
+            currency: item.price.currency || 'usd',
           },
           mode: subscription.status === 'trialing' ? 'trial' : 'paid',
           lastUpdated: new Date(),
@@ -156,10 +206,10 @@ export class StripeSubscriptionWebhookService {
       { new: true, upsert: true }
     );
 
-    if (!result) return;
+    if (!result) throw new Error('Subscription database update did not complete');
 
     const userDetails = await usersCollection.findOne({ _id: result.userId });
-    if (!userDetails) return;
+    if (!userDetails) return result;
 
     const subscriptionTag =
       result.status == 'canceled'
@@ -180,6 +230,7 @@ export class StripeSubscriptionWebhookService {
           : 'Sign ups',
       subscriptionTag: subscriptionTag,
     });
+    return result;
   }
   private async getActiveCheckWriterSubscriptions(
     customerId: string
@@ -206,11 +257,20 @@ export class StripeSubscriptionWebhookService {
     }
   }
 
+  private invoiceSubscriptionId(invoice: Stripe.Invoice): string | undefined {
+    const newer = invoice as Stripe.Invoice & {
+      parent?: { subscription_details?: { subscription?: string | { id: string } } };
+    };
+    const subscription = invoice.subscription || newer.parent?.subscription_details?.subscription;
+    return typeof subscription === 'string' ? subscription : subscription?.id;
+  }
+
   public async reconcileSuccessfulInvoice(invoice: Stripe.Invoice) {
-    if (!invoice.subscription) return { processed: false };
+    const subscriptionId = this.invoiceSubscriptionId(invoice);
+    if (!subscriptionId) return { processed: false };
 
     const subscription = await this.stripe.subscriptions.retrieve(
-      invoice.subscription as string
+      subscriptionId
     );
 
     if (
@@ -255,6 +315,15 @@ export class StripeSubscriptionWebhookService {
 
   private async handleCheckoutSessionCompleted(event: Stripe.Event) {
     const checkoutSession = event.data.object as Stripe.Checkout.Session;
+    if (checkoutSession.mode === 'subscription' && checkoutSession.subscription) {
+      const id = typeof checkoutSession.subscription === 'string'
+        ? checkoutSession.subscription : checkoutSession.subscription.id;
+      const subscription = await this.stripe.subscriptions.retrieve(id);
+      await this.updateSubscriptionInDatabase(subscription, {
+        userId: checkoutSession.metadata?.userId,
+      });
+    }
+
 
     const stripeSubscription = await stripesubscriptionFindeOne({
       sessionId: checkoutSession.id,
@@ -297,6 +366,8 @@ export class StripeSubscriptionWebhookService {
 
   private async handleInvoicePaid(event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
+    const subscriptionId = this.invoiceSubscriptionId(invoice);
+    if (!subscriptionId) return { processed: false };
 
     if (invoice.status === 'paid') {
       await this.reconcileSuccessfulInvoice(invoice);
@@ -304,11 +375,11 @@ export class StripeSubscriptionWebhookService {
 
     await updateSubscriptionByStripeCustomerId(
       { stripeCustomerId: invoice.customer as string },
-      { subscriptionId: invoice.subscription as string }
+      { subscriptionId: subscriptionId }
     );
 
     await updateOneBySubscriptionId(
-      { subscriptionId: invoice.subscription as string },
+      { subscriptionId: subscriptionId },
       {
         paymentStatus: invoice.status,
         amountTotal: invoice.total,
@@ -323,7 +394,7 @@ export class StripeSubscriptionWebhookService {
       const updatedStripeCustomer = await updateStripeCustomers(
         { stripeCustomerId: invoice.customer as string },
         {
-          lastSubscriptionId: invoice.subscription,
+          lastSubscriptionId: subscriptionId,
           isSubscriptionValid: true,
         }
       );
@@ -348,14 +419,19 @@ export class StripeSubscriptionWebhookService {
 
   private async handleInvoicePaymentFailed(event: Stripe.Event) {
     const invoice = event.data.object as Stripe.Invoice;
+    const subscriptionId = this.invoiceSubscriptionId(invoice);
+    if (!subscriptionId) return { processed: false };
+    const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
+    await this.updateSubscriptionInDatabase(subscription);
+
 
     await updateSubscriptionByStripeCustomerId(
       { stripeCustomerId: invoice.customer as string },
-      { subscriptionId: invoice.subscription as string }
+      { subscriptionId: subscriptionId }
     );
 
     await updateOneBySubscriptionId(
-      { subscriptionId: invoice.subscription as string },
+      { subscriptionId: subscriptionId },
       {
         paymentStatus: invoice.status,
         amountTotal: invoice.total,

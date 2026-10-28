@@ -1,0 +1,18 @@
+{
+  "send_grid": {
+    "api_key": "SG.test.test"
+  },
+  "jwt_secret_key": "test-only-not-for-production",
+  "mailchimp": {
+    "api_key": "test-us1",
+    "server_prefix": "us1",
+    "list_id": "test",
+    "tag": "test"
+  },
+  "stripe_subscription": {
+    "stripe_secret_key": "sk_test_placeholder",
+    "checkwriter_product_id": "prod_test",
+    "stripe_monthly_subscription_price_id": "price_test",
+    "stripe_subscription_trial_period_days": 14
+  }
+}

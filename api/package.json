@@ -9,7 +9,7 @@
     "prestart": "npm run db:migrate",
     "build": "cross-env NODE_ENV=prod tsc && cp -r config dist/config",
     "dev": "cross-env NODE_ENV=dev tsx watch src/index.ts",
-    "test": "cross-env NODE_ENV=dev sh -c 'tsx --test $(find src -name \"*.test.mjs\")'",
+    "test": "cross-env NODE_ENV=test sh -c 'node --import tsx --test $(find src -name \"*.test.mjs\")'",
     "prod": "cross-env NODE_ENV=production tsx watch src/index.ts",
     "preprod": "npm run db:migrate",
     "postinstall": "node -e \"if (!process.env.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD) { require('child_process').execSync('npx playwright install chromium', {stdio: 'inherit'}); }\" || true",
