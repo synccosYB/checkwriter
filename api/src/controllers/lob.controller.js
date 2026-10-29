@@ -280,6 +280,16 @@ router.get('/letter/:lobId', async (req, res, next) => {
     }
 
     const letter = await getLOBLetterById(lobId);
+    // Reading the tracking page also reconciles the local record with LOB.
+    // Do not mark a letter as mailed merely because LOB accepted it.
+    const fields = { lobResponse: letter };
+    if (letter.status) fields.status = mapLOBStatusToCheckStatus(letter.status);
+    const tracking = letter.tracking_number || letter.certified_tracking_number;
+    if (tracking) fields.trackingNumber = tracking;
+    if (letter.expected_delivery_date && !Number.isNaN(Date.parse(letter.expected_delivery_date))) {
+      fields.expectedDeliveryDate = new Date(letter.expected_delivery_date);
+    }
+    await updateLobMailRecord({ lobId, ownerId: record.ownerId }, { $set: fields });
     return res.status(200).json(letter);
   } catch (err) {
     next(err);
