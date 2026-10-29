@@ -64,6 +64,8 @@ const LOBCarriersTab = () => {
 
         const columns = [
                 { id: 'provider', label: 'Provider', width: '140px' },
+                { id: 'checkReference', label: 'Check ID', width: '180px' },
+                { id: 'lobReference', label: 'LOB Letter ID', width: '220px' },
                 { id: 'service', label: 'Service', width: '200px' },
                 { id: 'status', label: 'Status', width: '150px' },
                 { id: 'tracking', label: 'Tracking #', width: '220px' },
@@ -85,6 +87,16 @@ const LOBCarriersTab = () => {
                                         </Box>
                                 )
                         }
+                        case 'checkReference':
+                                return <Typography fontSize={12} fontFamily="monospace">{row.checkId || '—'}</Typography>
+                        case 'lobReference':
+                                return row._provider === 'lob' && row.lobId ? (
+                                        <Link component="button" variant="body2"
+                                                onClick={() => history.push(`/dashboard/mail-tracking/${row.lobId}`)}
+                                                sx={{ fontSize: 12, fontFamily: 'monospace', textAlign: 'left' }}>
+                                                {row.lobId}
+                                        </Link>
+                                ) : <Typography fontSize={12} color="text.secondary">—</Typography>
                         case 'service':
                                 return (
                                         <Typography fontSize={13}>
@@ -110,17 +122,10 @@ const LOBCarriersTab = () => {
                                         <Typography fontSize={12} fontFamily="monospace" color="#1976d2">
                                                 {row.trackingNumber}
                                         </Typography>
-                                ) : row.lobId ? (
-                                        <Link
-                                                component="button"
-                                                variant="body2"
-                                                onClick={() => history.push(`/dashboard/mail-tracking/${row.lobId}`)}
-                                                sx={{ fontSize: 12, fontFamily: "monospace", textAlign: "left" }}
-                                        >
-                                                {row.lobId}
-                                        </Link>
                                 ) : (
-                                        <Typography fontSize={12} color="text.secondary">Pending</Typography>
+                                        <Typography fontSize={12} color="text.secondary">
+                                                {row._provider === 'lob' && row.lobId ? 'Postal scans pending' : 'Not available'}
+                                        </Typography>
                                 )
                         case 'charge':
                                 return formatUSD(row.chargeAmount || 0)
