@@ -13,7 +13,7 @@ import { QuickbooksMappingService } from './quickbooksMapping.service';
 const oauthClient = new OAuthClient({
   clientId: config.qbo.client_id,
   clientSecret: config.qbo.client_secret,
-  environment: config.qbo.environment || 'sandbox',
+  environment: config.qbo.environment === 'production' ? 'production' : 'sandbox',
   redirectUri: config.qbo.redirect_uri,
 });
 
@@ -123,8 +123,7 @@ export class QuickbooksService {
     if (sameRelmAccounts <= 1) {
       try {
         await oauthClient.revoke({
-          token: record.refreshToken,
-          tokenTypeHint: 'refresh_token',
+          refresh_token: record.refreshToken,
         });
       } catch (revokeErr) {}
     }
@@ -319,7 +318,7 @@ export class QuickbooksService {
       qbo.getPurchase(checkId, (err, check) => {
         if (err) return console.error(err);
 
-        check.DocNumber = internalCheckId;
+        check.DocNumber = String(internalCheckId);
 
         qbo.updatePurchase(check, (err, updatedCheck) => {
           if (err) return console.error(err);
