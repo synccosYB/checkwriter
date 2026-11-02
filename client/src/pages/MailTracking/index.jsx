@@ -28,6 +28,7 @@ const EVENT_META = {
   "letter.rendered_pdf":           { label: "PDF rendered",         step: 2, color: "default" },
   "letter.rendered_thumbnails":    { label: "Thumbnails rendered",  step: 2, color: "default" },
   "letter.billed":                 { label: "Billed & queued",      step: 3, color: "info"    },
+  "letter.mailed":                 { label: "Mailed",               step: 4, color: "info"    },
   "letter.in_transit":             { label: "In transit",           step: 4, color: "warning" },
   "letter.in_local_area":          { label: "In local area",        step: 5, color: "warning" },
   "letter.processed_for_delivery": { label: "Out for delivery",     step: 6, color: "warning" },
@@ -35,7 +36,13 @@ const EVENT_META = {
   "letter.re_routed":              { label: "Re-routed",            step: 4, color: "warning" },
   "letter.returned_to_sender":     { label: "Returned to sender",   step: 4, color: "error"   },
   "letter.failed":                 { label: "Failed",               step: 4, color: "error"   },
+  "letter.rejected":               { label: "Rejected",             step: 4, color: "error"   },
+  "letter.deleted":                { label: "Canceled",             step: 1, color: "error"   },
 };
+
+function eventMeta(type) {
+  return EVENT_META[type] ?? EVENT_META[type?.replace('.certified.', '.')];
+}
 
 const TOTAL_STEPS = 7;
 
@@ -68,7 +75,7 @@ function getLatestEvent(events = []) {
 function getCurrentStep(events = []) {
   const latest = getLatestEvent(events);
   if (!latest) return 0;
-  return EVENT_META[latest.event_type]?.step ?? 1;
+  return eventMeta(latest.event_type)?.step ?? 1;
 }
 
 function SectionTitle({ children }) {
@@ -107,7 +114,7 @@ function DetailRow({ label, value }) {
 }
 
 function StatusChip({ eventType }) {
-  const meta = EVENT_META[eventType] ?? { label: eventType, color: "default" };
+  const meta = eventMeta(eventType) ?? { label: eventType, color: "default" };
   return <Chip label={meta.label} color={meta.color} size="small" />;
 }
 
@@ -184,7 +191,7 @@ function EventTimeline({ events = [] }) {
   return (
     <Stack spacing={0}>
       {sorted.map((evt, i) => {
-        const meta = EVENT_META[evt.event_type] ?? { label: evt.event_type, color: "default" };
+        const meta = eventMeta(evt.event_type) ?? { label: evt.event_type, color: "default" };
         const isLast = i === sorted.length - 1;
         return (
           <Box key={i} sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
