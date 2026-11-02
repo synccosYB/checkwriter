@@ -2,11 +2,15 @@ import axios from 'axios';
 import config from 'config';
 import { stripe } from './stripe.service.js';
 import { getLobConfig, getPlatformSetting } from '../models/platformSettings.model.js';
+import { buildLobCheckForm } from '../utils/lob-check-document.js';
 import { assertLobCheckMailingReady } from '../utils/lob-mailing-guard.js';
 
 const lobConfig = config.has('lob') ? config.get('lob') : {};
 const LOB_BASE_URL = 'https://api.lob.com/v1';
 const LOB_WEBHOOK_URL = lobConfig.webhook_url || process.env.LOB_WEBHOOK_URL || '';
+const requireVerifiedCheckMailing = async () => assertLobCheckMailingReady({
+  enabled: await getPlatformSetting('LOB_ORIGINAL_PDF_ENABLED') === 'true',
+});
 
 /**
  * Resolves the active LOB API key.
@@ -118,7 +122,7 @@ const resolveMailingPrices = async () => {
 };
 
 export const getLOBRates = async () => {
-  assertLobCheckMailingReady();
+  await requireVerifiedCheckMailing();
   const key = await resolveLobApiKey();
   if (!key) {
     throw new Error('LOB API key is not configured. Mail delivery via LOB is unavailable.');
@@ -152,105 +156,32 @@ export const getLOBRates = async () => {
   }));
 };
 
-const buildCheckLetterHtml = (checkData = {}) => {
-  const {
-    checkNumber = '',
-    amount = '',
-    issuedDate = '',
-    payeeName = '',
-    bankName = '',
-    memo = '',
-  } = checkData;
-
-  const formattedAmount =
-    amount !== ''
-      ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
-      : '';
-  const formattedDate = issuedDate
-    ? new Date(issuedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-    : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-
-  return `<html>
-<head><meta charset="utf-8" /><style>
-  body { font-family: Arial, sans-serif; margin: 0.5in; padding-top: 3in; color: #222; }
-  .check-container { border: 1px solid #aaa; border-radius: 6px; padding: 24px 32px; max-width: 680px; }
-  .check-header { display: flex; justify-content: space-between; margin-bottom: 18px; }
-  .check-number { font-size: 14px; color: #555; }
-  .check-date { font-size: 14px; }
-  .pay-to-row { display: flex; align-items: center; margin-bottom: 12px; gap: 8px; }
-  .label { font-size: 11px; color: #888; text-transform: uppercase; min-width: 80px; }
-  .payee-name { font-size: 16px; font-weight: bold; border-bottom: 1px solid #333; flex: 1; padding-bottom: 2px; }
-  .amount-box { border: 1px solid #333; padding: 4px 12px; font-size: 16px; font-weight: bold; min-width: 120px; text-align: right; }
-  .bank-row { margin-top: 16px; font-size: 12px; color: #555; }
-  .memo-row { margin-top: 8px; font-size: 12px; color: #555; }
-  .micr { font-family: monospace; font-size: 13px; letter-spacing: 2px; color: #444; margin-top: 20px; }
-</style></head>
-<body>
-  <div class="check-container">
-    <div class="check-header">
-      <span class="check-number">Check No. ${checkNumber || 'N/A'}</span>
-      <span class="check-date">${formattedDate}</span>
-    </div>
-    <div class="pay-to-row">
-      <span class="label">Pay to:</span>
-      <span class="payee-name">${payeeName || '&nbsp;'}</span>
-      <span class="amount-box">${formattedAmount || '$ ____'}</span>
-    </div>
-    ${memo ? `<div class="memo-row"><span class="label">Memo:</span> ${memo}</div>` : ''}
-    ${bankName ? `<div class="bank-row"><span class="label">Bank:</span> ${bankName}</div>` : ''}
-  </div>
-</body></html>`;
+export const createLOBLetter = async (options) => {
+  await requireVerifiedCheckMailing();
+  return submitLobCheckPdf(options);
 };
 
-export const createLOBLetter = async ({
-  addressFrom,
-  addressTo,
-  checkId,
-  userId,
-  mailClass = 'first_class',
-  lobDescription,
-  checkData = {},
+// Only callers holding a server-rendered, reviewed PDF may submit a document.
+export const submitLobCheckPdf = async ({
+  addressFrom, addressTo, checkId, userId, mailClass = 'first_class',
+  lobDescription, document, replacesLobId, idempotencyKey,
 }) => {
-  assertLobCheckMailingReady();
+  const address = (a) => ({
+    name: a.name || a.companyName, company: a.companyName,
+    address_line1: a.addressLine1, address_line2: a.addressLine2,
+    address_city: a.city, address_state: a.state,
+    address_zip: String(a.zipCode || a.zip || a.postalOrZip || ''),
+    address_country: normalizeCountryCode(a.country),
+  });
+  const form = buildLobCheckForm({ addressFrom: address(addressFrom), addressTo: address(addressTo),
+    checkId: String(checkId), userId: String(userId), mailClass, description: lobDescription,
+    document, replacesLobId });
   const client = await getLobAxios();
-  try {
-    const response = await client.post('/letters', {
-      description: lobDescription || `Check mailing ${checkId}`,
-      to: {
-        name: addressTo.name || addressTo.companyName,
-        company: addressTo.companyName,
-        address_line1: addressTo.addressLine1,
-        address_line2: addressTo.addressLine2 || '',
-        address_city: addressTo.city,
-        address_state: addressTo.state,
-        address_zip: String(addressTo.zipCode || addressTo.postalOrZip || ''),
-        address_country: normalizeCountryCode(addressTo.country),
-      },
-      from: {
-        name: addressFrom.name || addressFrom.companyName,
-        company: addressFrom.companyName,
-        address_line1: addressFrom.addressLine1,
-        address_line2: addressFrom.addressLine2 || '',
-        address_city: addressFrom.city,
-        address_state: addressFrom.state,
-        address_zip: String(addressFrom.zipCode || addressFrom.postalOrZip || ''),
-        address_country: normalizeCountryCode(addressFrom.country),
-      },
-      file: buildCheckLetterHtml(checkData),
-      color: false,
-      ...(LOB_MAIL_TYPE_MAP[mailClass] || { mail_type: 'usps_first_class' }),
-      metadata: {
-        checkId: String(checkId),
-        userId: String(userId),
-      },
-    });
-    return response.data;
-  } catch (err) {
-    if (err.response) {
-      throw new Error(`LOB API error: ${JSON.stringify(err.response.data)}`);
-    }
-    throw err;
-  }
+  const response = await client.post('/letters', form, {
+    timeout: 30000,
+    headers: { 'Idempotency-Key': idempotencyKey || `check-pdf-v1-${checkId}-${document.fingerprint}` },
+  });
+  return response.data;
 };
 
 export const getLOBLetterById = async (lobLetterId) => {
@@ -317,7 +248,7 @@ export const collectPaymentStripeLOB = async (
   userId,
   organizationId
 ) => {
-  assertLobCheckMailingReady();
+  await requireVerifiedCheckMailing();
   try {
     const prices = await resolveMailingPrices();
     const session = await stripe.checkout.sessions.create({

@@ -24,6 +24,7 @@ import groupsController from './groups.controller.js';
 import attachmentsController from './attachments.controller.js';
 import checksImportController from './checkImport.controller.js';
 import lobController from './lob.controller.js';
+import lobRecoveryController from './lobRecovery.controller.js';
 import carrierShipmentController from './carrierShipment.controller.js';
 import shippingController from './shipping.controller.js';
 import scheduledJobsController from './scheduledJobs.controller.js';
@@ -66,6 +67,7 @@ export const routes = (app, express) => {
   app.use('/attachments', attachmentsController);
   app.use('/checks-import', checksImportController);
   app.use('/lob', lobController);
+  app.use('/lob-recovery', lobRecoveryController);
   app.use('/carrier-shipment', carrierShipmentController);
   app.use('/shipping', shippingController);
   app.use('/scheduled-jobs', scheduledJobsController);

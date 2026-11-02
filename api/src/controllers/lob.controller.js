@@ -23,6 +23,7 @@ import { checksCollection, mailedChecksCollection, usersCollection } from '../mo
 import { resolveShipmentRecipient } from '../utils/shipmentRecipient.util.js';
 import { sendShippingStatusUpdateEmail } from '../services/email.service.js';
 import { stripe } from '../services/stripe.service.js';
+import { renderCheckMailPdf } from '../services/checkMailPdf.service.js';
 
 const LOB_WEBHOOK_SECRET = process.env.LOB_WEBHOOK_SECRET || '';
 
@@ -156,6 +157,9 @@ router.post(
     try {
       const { checksDetails } = req.body;
       const { userId, organizationId } = req;
+      for (const item of checksDetails || []) {
+        await renderCheckMailPdf(item.checkId, organizationId || userId, organizationId ? 'organization' : 'user');
+      }
       const origin = req.get('Origin') || 'http://localhost:7777';
       const checkoutUrl = await collectPaymentStripeLOB(
         checksDetails,
@@ -196,7 +200,7 @@ router.post(
         return res.status(403).json({ error: 'This check was not included in the payment session' });
       }
 
-      const existing = await getLobMailRecord({ stripeSessionId });
+      const existing = await getLobMailRecord({ stripeSessionId, checkId, ownerId });
       if (existing) {
         return res.status(200).json({ success: true, alreadyProcessed: true, record: existing });
       }
@@ -219,6 +223,8 @@ router.post(
         checkId,
         userId,
         mailClass,
+        document: await renderCheckMailPdf(checkId, ownerId, ownerType),
+        idempotencyKey: `paid-check-pdf-v1-${stripeSessionId}-${checkId}`,
         checkData: {
           checkNumber: check.checkNumber,
           amount: check.amount,
@@ -436,6 +442,8 @@ router.post(
             checkId,
             userId,
             mailClass,
+            document: await renderCheckMailPdf(checkId, ownerId, ownerType),
+            idempotencyKey: `paid-check-pdf-v1-${sessionId}-${checkId}`,
             checkData: {
               checkNumber: check.checkNumber,
               amount: check.amount,
