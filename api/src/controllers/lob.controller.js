@@ -526,7 +526,9 @@ router.post('/webhookEvents', async (req, res, next) => {
       if (!lobRecord) return res.status(200).json({ received: true, ignored: true });
       // Fetch the current object so delayed webhooks cannot overwrite newer
       // postal scans or replace the original response with redacted fields.
-      const letter = await getLOBLetterById(lobId);
+      const letter = eventType === 'letter.deleted'
+        ? { ...lobRecord.lobResponse, id: lobId }
+        : await getLOBLetterById(lobId);
       letter.events = normalizeLobEvents(letter, lobRecord.lobResponse?.events || [], event);
       const checkStatus = lobStatusFromEvents(letter.events, lobRecord.status);
       const trackingNumber = letter.tracking_number || letter.certified_tracking_number || null;

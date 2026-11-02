@@ -49,6 +49,7 @@ export function lobStatusFromEvents(events, fallback = 'Submitted') {
   };
   for (const event of events) {
     const name = event.event_type.replace(/^letter\.(certified\.)?/, '');
+    if (name === 'created' && fallback !== 'Submitted') continue;
     if (statuses[name]) return statuses[name];
   }
   return fallback;

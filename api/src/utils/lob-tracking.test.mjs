@@ -48,6 +48,7 @@ test('delayed creation event cannot hide delivery and rendered events cannot dow
     { event_type: { id: 'letter.created' }, date_created: '2026-11-01T00:00:00Z' });
   assert.equal(lobStatusFromEvents(events), 'Mailed');
   assert.equal(lobStatusFromEvents([{ event_type: 'letter.rendered_pdf' }], 'Mailed'), 'Mailed');
+  assert.equal(lobStatusFromEvents([{ event_type: 'letter.created' }], 'Error'), 'Error');
 });
 test('maps certified, failure, return, cancellation and re-routing events', () => {
   for (const [type, status] of Object.entries({
