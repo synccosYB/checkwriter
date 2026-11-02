@@ -257,7 +257,14 @@ export const getLOBLetterById = async (lobLetterId) => {
     return response.data;
   } catch (err) {
     if (err.response) {
-      throw new Error(`LOB API error: ${JSON.stringify(err.response.data)}`);
+      const status = err.response.status;
+      const error = new Error(status === 404
+        ? 'This letter was not found in the configured Lob account. Check the letter ID and Test/Live API key.'
+        : status === 401 || status === 403
+          ? 'Lob could not authorize this lookup. An administrator needs to check the mailing API key.'
+          : 'Lob tracking is temporarily unavailable. Please retry.');
+      error.statusCode = status === 404 ? 404 : 503;
+      throw error;
     }
     throw err;
   }
