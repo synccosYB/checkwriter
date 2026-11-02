@@ -422,7 +422,7 @@ export default function MailTrackingPage() {
           }}
         >
           <Box>
-            <SectionTitle>Current status</SectionTitle>
+            <SectionTitle>Latest recorded update</SectionTitle>
             {latestEvent ? (
               <StatusChip eventType={latestEvent.event_type} />
             ) : (
@@ -437,6 +437,11 @@ export default function MailTrackingPage() {
           </Box>
         </Box>
         <ProgressTracker events={events} />
+        {!(letter?.tracking_events?.length) && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            No USPS tracking scan has been reported yet. Created confirms Lob accepted the letter; it does not confirm mailing or delivery.
+          </Typography>
+        )}
       </Paper>
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
