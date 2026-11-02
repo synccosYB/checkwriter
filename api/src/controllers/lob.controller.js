@@ -1,5 +1,5 @@
 import express from 'express';
-import crypto from 'crypto';
+import { verifyLobSignature, normalizeLobEvents, lobStatusFromEvents } from '../utils/lob-tracking.js';
 import axios from 'axios';
 import {
   getLOBRates,
@@ -8,7 +8,6 @@ import {
   cancelLOBLetter,
   createLOBWebhook,
   collectPaymentStripeLOB,
-  mapLOBStatusToCheckStatus,
   resolveLobApiKey,
 } from '../services/lob.service.js';
 import { getLobConfig, saveLobConfig } from '../models/platformSettings.model.js';
@@ -45,16 +44,7 @@ const verifyLOBWebhookSignature = async (req) => {
     console.warn('LOB_WEBHOOK_SECRET is not set. All LOB webhook events are rejected. Configure LOB_WEBHOOK_SECRET to enable status updates.');
     return false;
   }
-  const signature = req.headers['lob-signature-v1'] || req.headers['x-lob-signature'];
-  if (!signature) return false;
-  const rawBody = req.rawBody;
-  if (!rawBody) return false;
-  const hmac = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
-  try {
-    return crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(hmac, 'hex'));
-  } catch {
-    return false;
-  }
+  return verifyLobSignature(req, secret);
 };
 
 const router = express.Router();
@@ -280,16 +270,21 @@ router.get('/letter/:lobId', async (req, res, next) => {
     }
 
     const letter = await getLOBLetterById(lobId);
+    letter.events = normalizeLobEvents(letter, record.lobResponse?.events || []);
     // Reading the tracking page also reconciles the local record with LOB.
     // Do not mark a letter as mailed merely because LOB accepted it.
     const fields = { lobResponse: letter };
-    if (letter.status) fields.status = mapLOBStatusToCheckStatus(letter.status);
+    fields.status = lobStatusFromEvents(letter.events, record.status);
     const tracking = letter.tracking_number || letter.certified_tracking_number;
     if (tracking) fields.trackingNumber = tracking;
     if (letter.expected_delivery_date && !Number.isNaN(Date.parse(letter.expected_delivery_date))) {
       fields.expectedDeliveryDate = new Date(letter.expected_delivery_date);
     }
     await updateLobMailRecord({ lobId, ownerId: record.ownerId }, { $set: fields });
+    await mailedChecksCollection.findOneAndUpdate(
+      { checkId: record.checkId, ownerId: record.ownerId },
+      { $set: { status: fields.status } }, { upsert: false }
+    );
     return res.status(200).json(letter);
   } catch (err) {
     next(err);
@@ -520,26 +515,34 @@ router.post('/webhookEvents', async (req, res, next) => {
 
     const event = req.body;
     const lobObject = event?.body || {};
-
-    const lobId = lobObject.id;
-    const lobStatus = lobObject.status || '';
-    const trackingNumber = lobObject.tracking_number || lobObject.certified_tracking_number || null;
-    const expectedDeliveryDate = lobObject.expected_delivery_date ? new Date(lobObject.expected_delivery_date) : null;
+    const eventType = event.event_type?.id || event.event_type;
+    if (typeof eventType !== 'string' || !eventType.startsWith('letter.')) {
+      return res.status(200).json({ received: true, ignored: true });
+    }
+    const lobId = lobObject.id || event.reference_id;
 
     if (lobId) {
-      const checkStatus = mapLOBStatusToCheckStatus(lobStatus);
-      const updateData = { status: checkStatus };
+      const lobRecord = await getLobMailRecord({ lobId });
+      if (!lobRecord) return res.status(200).json({ received: true, ignored: true });
+      // Fetch the current object so delayed webhooks cannot overwrite newer
+      // postal scans or replace the original response with redacted fields.
+      const letter = await getLOBLetterById(lobId);
+      letter.events = normalizeLobEvents(letter, lobRecord.lobResponse?.events || [], event);
+      const checkStatus = lobStatusFromEvents(letter.events, lobRecord.status);
+      const trackingNumber = letter.tracking_number || letter.certified_tracking_number || null;
+      const expectedDeliveryDate = letter.expected_delivery_date && !Number.isNaN(Date.parse(letter.expected_delivery_date))
+        ? new Date(letter.expected_delivery_date) : null;
+      const updateData = { status: checkStatus, lobResponse: letter };
       if (trackingNumber) updateData.trackingNumber = trackingNumber;
       if (expectedDeliveryDate) updateData.expectedDeliveryDate = expectedDeliveryDate;
-      if (checkStatus === 'Mailed') updateData.mailedAt = new Date();
-      if (checkStatus === 'Canceled') updateData.canceledAt = new Date();
+      if (checkStatus === 'Mailed' && !lobRecord.mailedAt) updateData.mailedAt = new Date();
+      if (checkStatus === 'Canceled' && !lobRecord.canceledAt) updateData.canceledAt = new Date();
 
       await updateLobMailRecord({ lobId }, { $set: updateData });
 
-      const lobRecord = await getLobMailRecord({ lobId });
       if (lobRecord) {
         await mailedChecksCollection.findOneAndUpdate(
-          { checkId: lobRecord.checkId },
+          { checkId: lobRecord.checkId, ownerId: lobRecord.ownerId },
           { $set: { status: checkStatus } },
           { upsert: false }
         );
@@ -549,7 +552,7 @@ router.post('/webhookEvents', async (req, res, next) => {
             lobRecord.ownerType,
             lobRecord.ownerId
           );
-          if (userEmail) {
+          if (userEmail && checkStatus !== lobRecord.status) {
             const check = lobRecord.checkId ? await checksCollection.findOne({ _id: lobRecord.checkId }) : null;
             await sendShippingStatusUpdateEmail({
               toEmail: userEmail,
@@ -570,7 +573,8 @@ router.post('/webhookEvents', async (req, res, next) => {
     return res.status(200).json({ received: true });
   } catch (err) {
     console.error('LOB webhook error:', err);
-    return res.status(200).json({ received: true });
+    // Non-2xx asks Lob to retry instead of silently losing the status update.
+    return res.status(500).json({ error: 'Webhook processing failed; retry later' });
   }
 });
 
