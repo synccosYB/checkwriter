@@ -1,7 +1,8 @@
 import express from 'express';
 import adminPrivilageMiddleware from '../middlewares/adminPrivilage.middleware.js';
-import { listLobRecoveries, prepareLobRecovery, recoveryPdf, originalRecoveryPdf, submitLobRecovery } from '../services/lobRecovery.service.js';
+import { listLobRecoveries, prepareLobRecovery, recoveryPdf, originalRecoveryPdf, submitLobRecovery, reconcileLobRecovery } from '../services/lobRecovery.service.js';
 import { setPlatformSetting } from '../models/platformSettings.model.js';
+import { assertLobCheckStockReady } from '../utils/lob-check-stock-guard.js';
 
 const router = express.Router();
 router.use(adminPrivilageMiddleware);
@@ -23,8 +24,12 @@ router.post('/:lobId/submit', async (req, res, next) => {
     res.json(await submitLobRecovery(req.params.lobId, req.body.pdfSha256, req.userId));
   } catch (e) { next(e); }
 });
+router.post('/:lobId/reconcile', async (req, res, next) => {
+  try { res.json(await reconcileLobRecovery(req.params.lobId, req.userId, req.body)); } catch (e) { next(e); }
+});
 router.post('/enable/new-mailings', async (req, res, next) => {
   try {
+    assertLobCheckStockReady();
     if (req.body.confirmation !== 'I_REVIEWED_THE_FULL_CHECK_PDF_AND_PRINT_SERVICE') return res.status(422).json({ error: 'Review a full check PDF and confirm the print service before reopening mailing.' });
     await setPlatformSetting('LOB_ORIGINAL_PDF_ENABLED', 'true'); res.json({ enabled: true });
   } catch (e) { next(e); }

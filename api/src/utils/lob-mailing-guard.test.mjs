@@ -18,6 +18,6 @@ for (const [name, operation] of [
   ['letter submission', () => createLOBLetter({})],
 ]) {
   test(`paused mailing blocks ${name} before contacting Lob or Stripe`, async () => {
-    await assert.rejects(operation, error => error.statusCode === 503 && error.message.includes('temporarily paused'));
+    await assert.rejects(operation, error => error.statusCode === 503 && /check-stock/.test(error.message));
   });
 }
