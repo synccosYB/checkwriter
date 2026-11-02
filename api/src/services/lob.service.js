@@ -2,6 +2,7 @@ import axios from 'axios';
 import config from 'config';
 import { stripe } from './stripe.service.js';
 import { getLobConfig, getPlatformSetting } from '../models/platformSettings.model.js';
+import { assertLobCheckMailingReady } from '../utils/lob-mailing-guard.js';
 
 const lobConfig = config.has('lob') ? config.get('lob') : {};
 const LOB_BASE_URL = 'https://api.lob.com/v1';
@@ -117,6 +118,7 @@ const resolveMailingPrices = async () => {
 };
 
 export const getLOBRates = async () => {
+  assertLobCheckMailingReady();
   const key = await resolveLobApiKey();
   if (!key) {
     throw new Error('LOB API key is not configured. Mail delivery via LOB is unavailable.');
@@ -209,6 +211,7 @@ export const createLOBLetter = async ({
   lobDescription,
   checkData = {},
 }) => {
+  assertLobCheckMailingReady();
   const client = await getLobAxios();
   try {
     const response = await client.post('/letters', {
@@ -314,6 +317,7 @@ export const collectPaymentStripeLOB = async (
   userId,
   organizationId
 ) => {
+  assertLobCheckMailingReady();
   try {
     const prices = await resolveMailingPrices();
     const session = await stripe.checkout.sessions.create({
