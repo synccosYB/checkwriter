@@ -7,6 +7,7 @@ import { getLobMailRecord, getLobMailRecords } from '../models/lob.model.js';
 import { getLOBLetterById, submitLobCheckPdf, findLobReplacements } from './lob.service.js';
 import { checksCollection } from '../models/dbCollections.js';
 import { recoverRecipientAddress } from '../utils/lob-recovery-address.js';
+import { assertLobCheckStockReady } from '../utils/lob-check-stock-guard.js';
 import { renderCheckMailPdf } from './checkMailPdf.service.js';
 import { uploadToS3, s3Client } from '../utils/s3.util.js';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
@@ -98,6 +99,7 @@ export async function originalRecoveryPdf(lobId) {
 }
 
 export async function submitLobRecovery(lobId, approvedSha256, actorId) {
+  assertLobCheckStockReady();
   const source = await sourceRecord(lobId);
   // Financial fields and signature must still match the PDF reviewed by the operator.
   const current = await renderCheckMailPdf(source.checkId, source.ownerId, source.ownerType);

@@ -4,13 +4,15 @@ import { stripe } from './stripe.service.js';
 import { getLobConfig, getPlatformSetting } from '../models/platformSettings.model.js';
 import { buildLobCheckForm } from '../utils/lob-check-document.js';
 import { assertLobCheckMailingReady } from '../utils/lob-mailing-guard.js';
+import { assertLobCheckStockReady } from '../utils/lob-check-stock-guard.js';
 
 const lobConfig = config.has('lob') ? config.get('lob') : {};
 const LOB_BASE_URL = 'https://api.lob.com/v1';
 const LOB_WEBHOOK_URL = lobConfig.webhook_url || process.env.LOB_WEBHOOK_URL || '';
-const requireVerifiedCheckMailing = async () => assertLobCheckMailingReady({
-  enabled: await getPlatformSetting('LOB_ORIGINAL_PDF_ENABLED') === 'true',
-});
+const requireVerifiedCheckMailing = async () => {
+  assertLobCheckStockReady();
+  assertLobCheckMailingReady({ enabled: await getPlatformSetting('LOB_ORIGINAL_PDF_ENABLED') === 'true' });
+};
 
 /**
  * Resolves the active LOB API key.
@@ -166,6 +168,7 @@ export const submitLobCheckPdf = async ({
   addressFrom, addressTo, checkId, userId, mailClass = 'first_class',
   lobDescription, document, replacesLobId, idempotencyKey,
 }) => {
+  assertLobCheckStockReady();
   const address = (a) => ({
     name: a.name || a.companyName, company: a.companyName,
     address_line1: a.addressLine1, address_line2: a.addressLine2,

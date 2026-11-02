@@ -10,7 +10,7 @@ const row = { sourceLobId: 'ltr_original', checkId: 'check1', ownerId: 'owner1',
   snapshot: { checkNumber: 123, payeeName: 'TEST PAYEE', amount: 12.34 } };
 beforeEach(() => { jest.clearAllMocks(); shippingClient.get.mockResolvedValue({ data: { records: [row] } }); shippingClient.post.mockResolvedValue({ data: {} }); });
 
-test('preparation never dispatches a check and final submission requires operator review and confirmation', async () => {
+test('preparation and reviewed selection cannot dispatch while print stock is unconfirmed', async () => {
   render(<LobRecovery />);
   expect(await screen.findByText(/Check 123/)).toBeVisible();
   expect(screen.getByRole('button', { name: 'Review resend (0)' })).toBeDisabled();
@@ -19,13 +19,9 @@ test('preparation never dispatches a check and final submission requires operato
   await waitFor(() => expect(screen.getByRole('checkbox')).toBeEnabled());
   expect(shippingClient.post.mock.calls.some(([url]) => url.endsWith('/submit'))).toBe(false);
   fireEvent.click(screen.getByRole('checkbox'));
-  fireEvent.click(screen.getByRole('button', { name: 'Review resend (1)' }));
-  expect(await screen.findByText('Print and mail 1 reviewed replacement checks?')).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Review resend (1)' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Reopen new check mailings' })).toBeDisabled();
   expect(shippingClient.post.mock.calls.some(([url]) => url.endsWith('/submit'))).toBe(false);
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm print and mail' }));
-  await waitFor(() => expect(shippingClient.post).toHaveBeenCalledWith('/lob-recovery/ltr_original/submit', {
-    pdfSha256: 'reviewed-sha', confirmation: 'PRINT_AND_MAIL_THE_REVIEWED_CHECK',
-  }));
 });
 
 test('an uncertain provider outcome is visible and cannot be selected for another resend', async () => {

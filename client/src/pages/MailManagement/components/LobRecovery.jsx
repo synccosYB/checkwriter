@@ -46,6 +46,7 @@ export default function LobRecovery() {
   });
   return <Box sx={{ py: 2 }}>
     <Typography variant="h6">Corrected check mailings from October 27, 2026</Typography>
+    <Alert severity="error" sx={{ my: 2 }}>Mailing is on hold pending Lob confirmation of check-stock printing. Prepared PDFs can be reviewed, but replacements cannot be submitted and new mailing orders cannot be reopened.</Alert>
     <Alert severity="warning" sx={{ my: 2 }}>
       These originals used the old summary-page workflow. Prepare and review each complete check PDF, compare its check number,
       amount and payee with the original, and confirm the payment remains unpaid before resending. Existing originals are retained.
@@ -62,10 +63,10 @@ export default function LobRecovery() {
         }
         if (failures.length) throw new Error(failures.join(' '));
       })}>Prepare corrected PDFs</Button>
-      <Button variant="contained" disabled={!!busy || !selected.length} onClick={() => setConfirm(true)}>
+      <Button variant="contained" disabled onClick={() => setConfirm(true)}>
         Review resend ({selected.length})
       </Button>
-      <Button disabled={!!busy} onClick={() => setEnableConfirm(true)}>Reopen new check mailings</Button>
+      <Button disabled onClick={() => setEnableConfirm(true)}>Reopen new check mailings</Button>
     </Stack>
     {busy && <Stack direction="row" spacing={2}><CircularProgress size={20} /><Typography>{busy}</Typography></Stack>}
     <Typography sx={{ my: 2 }}>{rows.length} original mailing records. Resends use the same check and do not charge the customer again.</Typography>
