@@ -20,6 +20,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import { shippingClient } from "../../API/shipping/shippingClient";
+import { apiErrorMessage } from "../../utils/apiErrorMessage";
 
 const POLL_INTERVAL_MS = 60_000;
 
@@ -312,12 +313,7 @@ export default function MailTrackingPage() {
         setLastRefreshed(new Date());
         setError(null);
       } catch (err) {
-        setError(
-          err?.response?.data?.error ??
-            err?.response?.data?.message ??
-            err?.message ??
-            "Failed to load letter tracking data."
-        );
+        setError(apiErrorMessage(err, "Failed to load letter tracking data."));
       } finally {
         setLoading(false);
         setRefreshing(false);
@@ -356,6 +352,9 @@ export default function MailTrackingPage() {
           Back to All Orders
         </Button>
         <Alert severity="error">{error}</Alert>
+        <Button onClick={() => fetchLetter(true)} disabled={refreshing} sx={{ mt: 2 }}>
+          {refreshing ? "Retrying..." : "Retry"}
+        </Button>
       </Box>
     );
   }
@@ -423,7 +422,7 @@ export default function MailTrackingPage() {
           }}
         >
           <Box>
-            <SectionTitle>Current status</SectionTitle>
+            <SectionTitle>Latest recorded update</SectionTitle>
             {latestEvent ? (
               <StatusChip eventType={latestEvent.event_type} />
             ) : (
@@ -438,6 +437,11 @@ export default function MailTrackingPage() {
           </Box>
         </Box>
         <ProgressTracker events={events} />
+        {!(letter?.tracking_events?.length) && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            No USPS tracking scan has been reported yet. Created confirms Lob accepted the letter; it does not confirm mailing or delivery.
+          </Typography>
+        )}
       </Paper>
 
       <Grid container spacing={2} sx={{ mb: 2 }}>

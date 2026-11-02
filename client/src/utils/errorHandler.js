@@ -1,5 +1,6 @@
 import { updateSnackbar } from '../redux/snackbarState'
 import store from '../redux/store'
+import { apiErrorMessage } from './apiErrorMessage'
 
 // Global state for subscription modal
 let subscriptionModalCallback = null
@@ -28,8 +29,7 @@ export const handleAPIError = (error) => {
 			store.dispatch(
 				updateSnackbar({
 					open: true,
-					message:response.data.message ? response.data.message :
-						'This feature requires a subscription. Please subscribe to continue.',
+					message: apiErrorMessage(error, 'This feature requires a subscription. Please subscribe to continue.'),
 					severity: 'warning'
 				})
 			)
@@ -43,10 +43,7 @@ export const handleAPIError = (error) => {
 	store.dispatch(
 		updateSnackbar({
 			open: true,
-			message:
-				response?.data?.userMessage ??
-				response?.data?.message ??
-				'An error occurred. Please try again.',
+			message: apiErrorMessage(error),
 			severity: 'error'
 		})
 	)
