@@ -36,3 +36,12 @@ test('an uncertain provider outcome is visible and cannot be selected for anothe
   expect(screen.getByRole('button', { name: 'Prepare PDF', exact: true })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Review resend (0)' })).toBeDisabled();
 });
+
+test('reconciliation checks provider records without creating another mailing', async () => {
+  shippingClient.get.mockResolvedValue({ data: { records: [{ ...row, state: 'Needs reconciliation' }] } });
+  render(<LobRecovery />);
+  fireEvent.click(await screen.findByRole('button', { name: 'Reconcile provider response' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Reconcile without sending' }));
+  await waitFor(() => expect(shippingClient.post).toHaveBeenCalledWith('/lob-recovery/ltr_original/reconcile', {}));
+  expect(shippingClient.post.mock.calls.some(([url]) => url.endsWith('/submit'))).toBe(false);
+});

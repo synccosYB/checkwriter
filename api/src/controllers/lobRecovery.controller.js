@@ -1,6 +1,6 @@
 import express from 'express';
 import adminPrivilageMiddleware from '../middlewares/adminPrivilage.middleware.js';
-import { listLobRecoveries, prepareLobRecovery, recoveryPdf, originalRecoveryPdf, submitLobRecovery } from '../services/lobRecovery.service.js';
+import { listLobRecoveries, prepareLobRecovery, recoveryPdf, originalRecoveryPdf, submitLobRecovery, reconcileLobRecovery } from '../services/lobRecovery.service.js';
 import { setPlatformSetting } from '../models/platformSettings.model.js';
 
 const router = express.Router();
@@ -22,6 +22,9 @@ router.post('/:lobId/submit', async (req, res, next) => {
     if (req.body.confirmation !== 'PRINT_AND_MAIL_THE_REVIEWED_CHECK') return res.status(422).json({ error: 'Review the complete check PDF and confirm the physical mailing.' });
     res.json(await submitLobRecovery(req.params.lobId, req.body.pdfSha256, req.userId));
   } catch (e) { next(e); }
+});
+router.post('/:lobId/reconcile', async (req, res, next) => {
+  try { res.json(await reconcileLobRecovery(req.params.lobId, req.userId, req.body)); } catch (e) { next(e); }
 });
 router.post('/enable/new-mailings', async (req, res, next) => {
   try {

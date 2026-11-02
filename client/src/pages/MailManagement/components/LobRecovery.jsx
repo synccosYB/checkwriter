@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Box, Button, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle,
-  FormControlLabel, Paper, Stack, Typography } from '@mui/material';
+  FormControlLabel, Paper, Stack, TextField, Typography } from '@mui/material';
 import { shippingClient } from '../../../API/shipping/shippingClient';
 import { apiErrorMessage } from '../../../utils/apiErrorMessage';
 
@@ -13,6 +13,9 @@ export default function LobRecovery() {
   const [enableConfirm, setEnableConfirm] = useState(false);
   const [message, setMessage] = useState('');
   const [pdf, setPdf] = useState(null);
+  const [reconcile, setReconcile] = useState(null);
+  const [providerLogId, setProviderLogId] = useState('');
+  const [verifiedRejection, setVerifiedRejection] = useState(false);
   const load = async () => { const { data } = await shippingClient.get('/lob-recovery'); setRows(data.records); };
   useEffect(() => { load().catch(e => setError(apiErrorMessage(e))); }, []);
   const run = async (label, action) => {
@@ -74,6 +77,9 @@ export default function LobRecovery() {
       <Typography variant="body2">Owner: {row.ownerId} ({row.ownerType})</Typography>
       {row.replacementLobId && <Typography>Replacement: {row.replacementLobId}</Typography>}
       {row.failure && <Alert severity="error">{row.failure}</Alert>}
+      {['Needs reconciliation', 'Rejected'].includes(row.state) && <Button disabled={!!busy} onClick={() => {
+        setReconcile(row); setProviderLogId(''); setVerifiedRejection(false);
+      }}>Reconcile provider response</Button>}
       <Stack direction="row" spacing={1} sx={{ my: 1 }}>
         <Button disabled={!!busy} onClick={() => view(row, true)}>Original Lob document</Button>
         <Button disabled={!!busy || !['Needs preparation', 'Prepared'].includes(row.state)} onClick={() => prepare(row)}>Prepare PDF</Button>
@@ -83,6 +89,25 @@ export default function LobRecovery() {
         disabled={!!busy} onChange={e => setReviewed(old => ({ ...old, [row.sourceLobId]: e.target.checked }))} />}
         label="I reviewed this complete check PDF, matched its original check details, and confirmed the payment is still unpaid." />}
     </Paper>)}
+    <Dialog open={!!reconcile} onClose={() => setReconcile(null)}>
+      <DialogTitle>Reconcile this blocked mailing</DialogTitle>
+      <DialogContent>
+        <Typography>First check Lob API Logs for this exact request. An existing replacement is linked automatically.
+          A new attempt is allowed only after verifying a 422 rejection with no reference ID. A timeout or missing list entry is insufficient.</Typography>
+        <Typography sx={{ my: 2 }}>Request key: recovery-pdf-v1-{reconcile?.sourceLobId}</Typography>
+        <TextField fullWidth label="Verified Lob API log ID" value={providerLogId} onChange={e => setProviderLogId(e.target.value)} />
+        <FormControlLabel control={<Checkbox checked={verifiedRejection} onChange={e => setVerifiedRejection(e.target.checked)} />}
+          label="I verified that this exact request returned 422 and has no reference ID." />
+      </DialogContent>
+      <DialogActions><Button onClick={() => setReconcile(null)}>Back</Button>
+        <Button onClick={() => run('Reconciling provider response', async () => {
+          await shippingClient.post(`/lob-recovery/${reconcile.sourceLobId}/reconcile`, verifiedRejection ? {
+            confirmation: 'I_VERIFIED_LOB_REJECTED_THIS_REQUEST_WITH_NO_REFERENCE', statusCode: 422,
+            logId: providerLogId, idempotencyKey: `recovery-pdf-v1-${reconcile.sourceLobId}`,
+          } : {});
+          setReconcile(null); setMessage('Provider reconciliation completed. No new mailing was submitted.');
+        })}>Reconcile without sending</Button></DialogActions>
+    </Dialog>
     <Dialog open={!!pdf} maxWidth="xl" fullWidth onClose={() => { URL.revokeObjectURL(pdf.url); setPdf(null); }}>
       <DialogTitle>{pdf?.title}</DialogTitle>
       <DialogContent>{pdf && <iframe title={pdf.title} src={pdf.url} style={{ width: '100%', height: '75vh', border: 0 }} />}</DialogContent>

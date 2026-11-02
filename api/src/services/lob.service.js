@@ -184,6 +184,12 @@ export const submitLobCheckPdf = async ({
   return response.data;
 };
 
+export const findLobReplacements = async (sourceLobId) => {
+  const client = await getLobAxios();
+  const response = await client.get('/letters', { params: { 'metadata[replacesLobId]': sourceLobId, limit: 100 }, timeout: 15000 });
+  return (response.data.data || []).filter(letter => letter.metadata?.replacesLobId === sourceLobId);
+};
+
 export const getLOBLetterById = async (lobLetterId) => {
   const client = await getLobAxios();
   try {
