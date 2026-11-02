@@ -127,7 +127,7 @@ export const compileTemplate = async (check) => {
       isSignatureSelected: check.isSignatureSelected || false,
       signImagestr: check.signImagestr || '',
       checkLockIcon: checkLockIcon || '', // Ensure checkLockIcon exists
-      signatureUrl: await getBankSignatureUrl({
+      signatureUrl: check.resolvedSignatureUrl ?? await getBankSignatureUrl({
         bankId: check.bankId,
         bankPreferences: check?.bank?.bankPreferences,
         ownerType: check.ownerType,
@@ -188,11 +188,12 @@ export const compileBlankTemplate = async (check) => {
   }
 };
 
-export const generatePDFBuffer = async (htmlContent) => {
+export const generatePDFBuffer = async (htmlContent, { strictAssets = false, ...pdfOptions } = {}) => {
+  let browser;
   try {
     const { chromium } = await import('playwright');
     const executablePath = getChromiumPath();
-    const browser = await chromium.launch({
+    browser = await chromium.launch({
       headless: true,
       ...(executablePath ? { executablePath } : {}),
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -200,8 +201,12 @@ export const generatePDFBuffer = async (htmlContent) => {
     const page = await browser.newPage();
 
     await page.setContent(htmlContent, { waitUntil: 'networkidle' });
-
-    await page.waitForTimeout(1000);
+    await page.evaluate(() => document.fonts.ready);
+    if (strictAssets) {
+      const assetsReady = await page.evaluate(() =>
+        document.fonts.check('12px GnuMICR') && [...document.images].every(img => img.complete && img.naturalWidth > 0));
+      if (!assetsReady) throw new Error('Check fonts or signature images failed to load; mailing was not submitted.');
+    }
 
     const pdfData = await page.pdf({
       format: 'Letter',
@@ -212,13 +217,15 @@ export const generatePDFBuffer = async (htmlContent) => {
         bottom: '0.5in',
         left: '0.5in',
       },
+      ...pdfOptions,
     });
 
-    await browser.close();
     return Buffer.from(pdfData);
   } catch (error) {
     console.error('Error generating PDF:', error);
     throw error;
+  } finally {
+    if (browser) await browser.close();
   }
 };
 

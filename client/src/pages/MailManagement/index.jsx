@@ -4,6 +4,7 @@ import { styles } from './styles'
 import { AllCheckMailList } from './components/AllCheckMailList'
 import { ProcessingBatchList } from './components/ProcessingBatchList'
 import { ShipmentsAdminList } from './components/ShipmentsAdminList'
+import LobRecovery from './components/LobRecovery'
 import Tabs from '../../components/shared/tabs'
 
 import useMailingStats from '../../API/admin/useMailingStats'
@@ -38,6 +39,7 @@ const MailManagement = () => {
                         <Box sx={styles.tabContainer}>
                                 <Tabs
                                         tabsData={[
+                                                { title: 'Corrected LOB checks', component: <LobRecovery /> },
                                                 {
                                                         title: 'All',
                                                         titleNode: (

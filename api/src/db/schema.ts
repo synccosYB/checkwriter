@@ -609,6 +609,24 @@ export const lobMailRecords = pgTable('lob_mail_records', {
 ]);
 
 // ─── Carrier Shipments ───
+export const lobMailRecoveries = pgTable('lob_mail_recoveries', {
+  sourceLobId: text('source_lob_id').primaryKey(),
+  sourceRecordId: objectIdRef('source_record_id').notNull(),
+  checkId: objectIdRef('check_id').notNull(),
+  ...ownerFields(),
+  status: text('status').default('Prepared').notNull(),
+  pdfKey: text('pdf_key').notNull(),
+  pdfSha256: text('pdf_sha256').notNull(),
+  checkFingerprint: text('check_fingerprint').notNull(),
+  snapshot: jsonb('snapshot').notNull(),
+  preparedBy: objectIdRef('prepared_by').notNull(),
+  preparedAt: timestamp('prepared_at').defaultNow().notNull(),
+  submittedAt: timestamp('submitted_at'),
+  replacementLobId: text('replacement_lob_id'),
+  failure: text('failure'),
+});
+
+// ─── Carrier Shipments ───
 export const carrierShipments = pgTable('carrier_shipments', {
   _id: id(),
   checkId: objectIdRef('check_id').notNull(),

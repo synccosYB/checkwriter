@@ -14,5 +14,11 @@
     "checkwriter_product_id": "prod_test",
     "stripe_monthly_subscription_price_id": "price_test",
     "stripe_subscription_trial_period_days": 14
+  },
+  "s3": {
+    "endpoint_url": "http://127.0.0.1:1",
+    "bucket_name": "test-only",
+    "access_key_id": "test-only",
+    "secret_access_key": "test-only"
   }
 }
