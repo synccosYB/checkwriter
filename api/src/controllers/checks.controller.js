@@ -1006,8 +1006,6 @@ router.post(
         })
       );
 
-      const signatureUrl = await getUserSignatureBase64(ownerId, ownerType);
-
       const organization = await organizationCollection.findById(
         organizationId
       );
@@ -1017,7 +1015,6 @@ router.post(
           return `<div style="page-break-after: always;">${await compileTemplate(
             {
               ...check,
-              signatureUrl,
               organization,
             }
           )}</div>`;
