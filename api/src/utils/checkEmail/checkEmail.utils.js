@@ -102,6 +102,7 @@ export const compileTemplate = async (check) => {
   try {
     const templateContent = await loadTemplate('checkNew.template');
     const template = handlebars.compile(templateContent);
+    const ownerId = check.ownerId ?? (check.ownerType === 'user' ? check.userId : undefined);
 
     // Ensure all necessary properties are present in the 'check' object
     const populatedCheck = {
@@ -128,12 +129,11 @@ export const compileTemplate = async (check) => {
       signImagestr: check.signImagestr || '',
       checkLockIcon: checkLockIcon || '', // Ensure checkLockIcon exists
       signatureUrl: check.resolvedSignatureUrl ?? await getBankSignatureUrl({
-        bankId: check.bankId,
+        bankId: check.bank?._id ?? check.bankId,
         bankPreferences: check?.bank?.bankPreferences,
         ownerType: check.ownerType,
-        ownerId: check.ownerType === 'user' ? check.userId : check.ownerId,
-        defaultOwnerId:
-          check.ownerType === 'user' ? check.userId : check.ownerId,
+        ownerId,
+        defaultOwnerId: ownerId,
       }),
     };
     return template(populatedCheck);
